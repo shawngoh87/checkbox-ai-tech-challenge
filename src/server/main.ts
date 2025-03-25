@@ -1,16 +1,31 @@
 import express from 'express';
+import cors from 'cors';
 import ViteExpress from 'vite-express';
+import { createTaskRoutes } from './controller/task.routes.js';
+import { TaskController } from './controller/task.controller.js';
+import { ListTasksUseCase } from './use-case/task/list-tasks.js';
+import { InMemoryTaskRepository } from './repository/task/in-memory-task.repository.js';
+import logger from './utils/logger.js';
 
 const app = express();
 
-// TODO: Example route, please delete this when you implement your own routes
-app.get('/hello', (_, res) => {
-  res.json({ result: 'Hello there!' });
-});
+app.use(express.json());
+app.use(cors());
+
+logger.info('Initializing server...');
+
+// Infrastructure
+const taskRepository = new InMemoryTaskRepository();
+
+// Use cases
+const listTasksUseCase = new ListTasksUseCase(taskRepository);
+
+// Controllers
+const taskController = new TaskController(listTasksUseCase);
+
+app.use('/api/v1/tasks', createTaskRoutes(taskController));
 
 ViteExpress.config({
-  // Copy and paste of vite.config.ts just so vite-express does not need to import
-  // vite, a devDependency, in runtime
   inlineViteConfig: {
     build: {
       outDir: './dist/client',
@@ -18,5 +33,6 @@ ViteExpress.config({
   },
 });
 
-// eslint-disable-next-line no-console
-ViteExpress.listen(app, 3000, () => console.log(`Server is listening on port 3000...`));
+ViteExpress.listen(app, 3000, () => {
+  logger.info('Server is listening on port 3000...');
+});
