@@ -26,11 +26,7 @@ const viteExpressBuilder = ({
     async writeBundle() {
       const config = await rollup({
         input: input,
-        external: [
-          'express',
-          'vite-express',
-          ...(Array.isArray(external) ? external : [external]),
-        ],
+        external: ['express', 'vite-express', ...(Array.isArray(external) ? external : [external])],
         plugins: [
           typescript({
             module: 'NodeNext',
