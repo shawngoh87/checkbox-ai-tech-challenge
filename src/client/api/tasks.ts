@@ -15,45 +15,56 @@ export interface UpdateTaskPayload {
 const API_BASE_URL = '/api/v1/tasks';
 
 export async function fetchTasks(): Promise<Task[]> {
-  return [
-    {
-      id: '1',
-      name: 'Task 1',
-      description: 'Description 1',
-      dueDate: '2025-05-01T00:00:00.000Z',
-      createDate: '2025-04-01T00:00:00.000Z',
-      status: calculateTaskStatus('2025-05-01T00:00:00.000Z'),
-    },
-    {
-      id: '2',
-      name: 'Task 2',
-      description: 'Description 2',
-      dueDate: '2025-04-05T00:00:00.000Z',
-      createDate: '2025-04-02T00:00:00.000Z',
-      status: calculateTaskStatus('2025-04-05T00:00:00.000Z'),
-    },
-  ];
+  const response = await fetch(API_BASE_URL);
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch tasks');
+  }
+
+  const tasks = await response.json();
+  return tasks.map((task: Task) => ({
+    ...task,
+    status: calculateTaskStatus(task.dueDate),
+  }));
 }
 
 export async function createTask(taskData: CreateTaskPayload): Promise<Task> {
+  const response = await fetch(API_BASE_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(taskData),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to create task');
+  }
+
+  const task = await response.json();
   return {
-    id: '3',
-    name: 'Task 3',
-    description: 'Description 3',
-    dueDate: '2025-04-05T00:00:00.000Z',
-    createDate: '2025-04-02T00:00:00.000Z',
-    status: calculateTaskStatus('2025-04-05T00:00:00.000Z'),
+    ...task,
+    status: calculateTaskStatus(task.dueDate),
   };
 }
 
 export async function updateTask(taskId: string, taskData: UpdateTaskPayload): Promise<Task> {
+  const response = await fetch(`${API_BASE_URL}/${taskId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(taskData),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to update task');
+  }
+
+  const task = await response.json();
   return {
-    id: taskId,
-    name: 'Updated Task',
-    description: 'Updated Description',
-    dueDate: '2025-04-05T00:00:00.000Z',
-    createDate: '2025-04-02T00:00:00.000Z',
-    status: calculateTaskStatus('2025-04-05T00:00:00.000Z'),
+    ...task,
+    status: calculateTaskStatus(task.dueDate),
   };
 }
 
