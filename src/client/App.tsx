@@ -1,18 +1,14 @@
-import { useEffect, useState } from 'react';
+import { TasksPage } from './pages/TasksPage';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-const App = () => {
-  // TODO: example api call, please delete this when you implement your own components/calls
-  const [message, setMessage] = useState<string>();
+const queryClient = new QueryClient();
 
-  useEffect(() => {
-    (async () => {
-      const response = await fetch('/hello');
-      const { result } = await response.json();
-      setMessage(result);
-    })();
-  });
-
-  return <p>{message}</p>;
-};
-
-export { App };
+export function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <div className="app">
+        <TasksPage />
+      </div>
+    </QueryClientProvider>
+  );
+}

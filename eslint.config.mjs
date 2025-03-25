@@ -15,6 +15,9 @@ const compat = new FlatCompat({
 
 export default defineConfig([
   {
+    ignores: ['**/___*/**', '**/dist/**', 'dist/**'],
+  },
+  {
     extends: [
       ...compat.extends('eslint:recommended'),
       ...compat.extends('plugin:prettier/recommended'),
@@ -56,6 +59,6 @@ export default defineConfig([
       'no-console': 'warn',
     },
 
-    files: ['**/*.ts', '**/*.tsx'],
+    files: ['src/**/*.ts', 'src/**/*.tsx'],
   },
 ]);
