@@ -1,6 +1,6 @@
 export type ListTasksResponse = {
   tasks: {
-    id: string;
+    id: number;
     name: string;
     description: string;
     dueAt: string;

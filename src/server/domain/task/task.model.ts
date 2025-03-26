@@ -1,5 +1,5 @@
 export type TaskProps = {
-  id: string;
+  id: number;
   name: string;
   description: string;
   dueAt: Date;
@@ -7,7 +7,7 @@ export type TaskProps = {
 };
 
 export class Task {
-  private id: string;
+  private id: number;
   private name: string;
   private description: string;
   private dueAt: Date;

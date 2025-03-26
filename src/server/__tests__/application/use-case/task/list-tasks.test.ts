@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ListTasksUseCase } from '../../../use-case/task/list-tasks.js';
-import { TaskRepository } from '../../../infra/repository/task/task.repository.interface.js';
+import { ListTasksUseCase } from '../../../../application/use-case/task/list-tasks.js';
+import { TaskRepository } from '../../../../infra/repository/task/task.repository.interface.js';
 
 describe('ListTasksUseCase', () => {
   let mockRepository: { findAll: ReturnType<typeof vi.fn> };

@@ -12,8 +12,8 @@
     "build": "vite build",
     "lint": "eslint",
     "format": "eslint --fix",
-    "test": "vitest run",
-    "test:watch": "vitest --bail 1",
+    "test": "NODE_OPTIONS=\"--import tsx\" vitest run",
+    "test:watch": "NODE_OPTIONS=\"--import tsx\" vitest --bail 1",
     "migrate:up": "npx kysely migrate up",
     "migrate:down": "npx kysely migrate down",
     "seed": "npx kysely seed run"

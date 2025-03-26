@@ -25,7 +25,7 @@ export async function listTasks(): Promise<Task[]> {
   const body = (await response.json()) as ListTasksResponse;
 
   return body.tasks.map((task) => ({
-    id: task.id,
+    id: task.id.toString(),
     name: task.name,
     description: task.description,
     dueDate: task.dueAt,
