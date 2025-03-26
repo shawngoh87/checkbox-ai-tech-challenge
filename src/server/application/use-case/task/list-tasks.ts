@@ -1,14 +1,14 @@
-import { Task } from '../../domain/task/task.model.js';
-import { TaskRepository } from '../../infra/repository/task/task.repository.interface.js';
+import { Task } from '../../../domain/task/task.model.js';
+import { TaskRepository } from '../../../infra/repository/task/task.repository.js';
 
-export class UnknownError extends Error {
+class UnknownError extends Error {
   constructor() {
-    super('unknown-error');
+    super('Unknown error');
   }
 }
 
 export class ListTasksUseCase {
-  public static readonly UnknownError = UnknownError;
+  static UnknownError = UnknownError;
 
   constructor(private taskRepository: TaskRepository) {}
 
@@ -16,7 +16,7 @@ export class ListTasksUseCase {
     try {
       return this.taskRepository.findAll();
     } catch {
-      throw new UnknownError();
+      throw new ListTasksUseCase.UnknownError();
     }
   }
 }

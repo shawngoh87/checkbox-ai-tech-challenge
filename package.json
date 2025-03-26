@@ -14,7 +14,7 @@
     "format": "eslint --fix",
     "test": "NODE_OPTIONS=\"--import tsx\" vitest run",
     "test:watch": "NODE_OPTIONS=\"--import tsx\" vitest --bail 1",
-    "migrate:up": "npx kysely migrate up",
+    "migrate:up": "npx kysely migrate latest",
     "migrate:down": "npx kysely migrate down",
     "seed": "npx kysely seed run"
   },

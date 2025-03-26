@@ -1,9 +1,13 @@
 import { Request, Response } from 'express';
 import { ListTasksUseCase } from '../use-case/task/list-tasks.js';
-import { ErrorResponse, ListTasksResponse } from '../../common/types.js';
+import { CreateTaskResponse, ErrorResponse, ListTasksResponse } from '../../../common/types.js';
+import { CreateTaskUseCase } from '../use-case/task/create-task.js';
 
 export class TaskController {
-  constructor(private listTasksUseCase: ListTasksUseCase) {}
+  constructor(
+    private listTasksUseCase: ListTasksUseCase,
+    private createTaskUseCase: CreateTaskUseCase,
+  ) {}
 
   async listTasks(req: Request, res: Response<ListTasksResponse | ErrorResponse>): Promise<void> {
     try {
@@ -16,6 +20,7 @@ export class TaskController {
           description: plain.description,
           dueAt: plain.dueAt.toISOString(),
           createdAt: plain.createdAt.toISOString(),
+          version: plain.version,
         };
       });
 
@@ -29,6 +34,25 @@ export class TaskController {
         return;
       }
 
+      res.status(500).json({ error: 'Unknown error' });
+    }
+  }
+
+  async createTask(req: Request, res: Response<CreateTaskResponse | ErrorResponse>): Promise<void> {
+    try {
+      const task = await this.createTaskUseCase.execute(req.body);
+      const plain = task.toPlainObject();
+      res.status(201).json({
+        task: {
+          id: plain.id,
+          name: plain.name,
+          description: plain.description,
+          dueAt: plain.dueAt.toISOString(),
+          createdAt: plain.createdAt.toISOString(),
+          version: plain.version,
+        },
+      });
+    } catch {
       res.status(500).json({ error: 'Unknown error' });
     }
   }

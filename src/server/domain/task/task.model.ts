@@ -1,17 +1,21 @@
+import { v4 as uuidv4 } from 'uuid';
+
 export type TaskProps = {
-  id: number;
+  id: string;
   name: string;
   description: string;
   dueAt: Date;
   createdAt: Date;
+  version: number;
 };
 
 export class Task {
-  private id: number;
+  private id: string;
   private name: string;
   private description: string;
   private dueAt: Date;
   private createdAt: Date;
+  private version: number;
 
   constructor(props: TaskProps) {
     this.id = props.id;
@@ -19,6 +23,18 @@ export class Task {
     this.description = props.description;
     this.dueAt = props.dueAt;
     this.createdAt = props.createdAt;
+    this.version = props.version;
+  }
+
+  static createNew(props: { name: string; description: string; dueAt: Date }): Task {
+    return new Task({
+      id: uuidv4(),
+      name: props.name,
+      description: props.description,
+      dueAt: props.dueAt,
+      createdAt: new Date(),
+      version: 0,
+    });
   }
 
   toPlainObject(): TaskProps {
@@ -28,6 +44,7 @@ export class Task {
       description: this.description,
       dueAt: this.dueAt,
       createdAt: this.createdAt,
+      version: this.version,
     };
   }
 }

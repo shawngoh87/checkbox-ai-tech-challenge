@@ -3,6 +3,8 @@ import { TaskRepository } from '../../../infra/repository/task/task.repository.j
 import { Database } from '../../../infra/database/types.js';
 import { Kysely } from 'kysely';
 import { prepareTestDatabase } from '../../test-utils.js';
+import { v4 as uuidv4 } from 'uuid';
+import { Task } from '../../../domain/task/task.model.js';
 
 describe('TaskRepository', () => {
   let taskRepository: TaskRepository;
@@ -10,16 +12,18 @@ describe('TaskRepository', () => {
 
   const tasksFixture = [
     {
-      id: '1',
+      id: uuidv4(),
       name: 'Test Task',
       description: 'Test Description',
       due_at: new Date(),
+      version: 0,
     },
     {
-      id: '2',
+      id: uuidv4(),
       name: 'Test Task 2',
       description: 'Test Description 2',
       due_at: new Date(),
+      version: 0,
     },
   ];
 
@@ -44,19 +48,73 @@ describe('TaskRepository', () => {
       const tasks = await taskRepository.findAll();
       expect(tasks.length).toEqual(2);
       expect(tasks[0].toPlainObject()).toEqual({
-        id: 1,
-        name: 'Test Task',
-        description: 'Test Description',
+        id: tasksFixture[0].id,
+        name: tasksFixture[0].name,
+        description: tasksFixture[0].description,
         dueAt: tasksFixture[0].due_at,
         createdAt: expect.any(Date),
+        version: tasksFixture[0].version,
       });
       expect(tasks[1].toPlainObject()).toEqual({
-        id: 2,
-        name: 'Test Task 2',
-        description: 'Test Description 2',
+        id: tasksFixture[1].id,
+        name: tasksFixture[1].name,
+        description: tasksFixture[1].description,
         dueAt: tasksFixture[1].due_at,
         createdAt: expect.any(Date),
+        version: tasksFixture[1].version,
       });
+    });
+  });
+
+  describe('create', () => {
+    it('should create a task', async () => {
+      const task = await taskRepository.create({
+        task: new Task({
+          id: uuidv4(),
+          name: 'New Task',
+          description: 'New Description',
+          dueAt: new Date(),
+          createdAt: new Date(),
+          version: 0,
+        }),
+      });
+
+      expect(task.toPlainObject()).toEqual({
+        id: expect.any(String),
+        name: 'New Task',
+        description: 'New Description',
+        dueAt: expect.any(Date),
+        createdAt: expect.any(Date),
+        version: 0,
+      });
+
+      // The last task should be the new one
+      const tasks = await db.selectFrom('task').orderBy('created_at', 'desc').selectAll().execute();
+
+      expect(tasks.length).toEqual(3);
+      expect(tasks[0]).toEqual({
+        id: expect.any(String),
+        name: 'New Task',
+        description: 'New Description',
+        due_at: expect.any(Date),
+        created_at: expect.any(Date),
+        version: 0,
+      });
+    });
+
+    it('should throw a UniqueKeyConstraintError if the task id already exists', async () => {
+      await expect(
+        taskRepository.create({
+          task: new Task({
+            id: tasksFixture[0].id,
+            name: 'Test Task',
+            description: 'Test Description',
+            dueAt: new Date(),
+            createdAt: new Date(),
+            version: 0,
+          }),
+        }),
+      ).rejects.toThrow(TaskRepository.UniqueKeyConstraintError);
     });
   });
 });

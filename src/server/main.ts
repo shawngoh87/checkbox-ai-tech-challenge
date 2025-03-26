@@ -14,7 +14,7 @@ const { Pool } = pg.default;
 import { Database } from './infra/database/types.js';
 import { Kysely } from 'kysely';
 import { TaskRepository } from './infra/repository/task/task.repository.js';
-
+import { CreateTaskUseCase } from './application/use-case/task/create-task.js';
 const app = express();
 
 app.use(express.json());
@@ -41,9 +41,10 @@ const taskRepository = new TaskRepository(db);
 
 // Use cases
 const listTasksUseCase = new ListTasksUseCase(taskRepository);
+const createTaskUseCase = new CreateTaskUseCase(taskRepository);
 
 // Controllers
-const taskController = new TaskController(listTasksUseCase);
+const taskController = new TaskController(listTasksUseCase, createTaskUseCase);
 
 // TODO: Move all routes to a file and add a fallback route
 app.use('/api/v1/tasks', createTaskRoutes(taskController));

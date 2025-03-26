@@ -5,11 +5,12 @@ export interface Database {
 }
 
 export interface TaskTable {
-  id: Generated<string>;
+  id: Generated<string>; // uuidv4
   name: string;
   description: string;
   due_at: ColumnType<Date, Date | undefined, Date | undefined>;
   created_at: ColumnType<Date, Date | undefined, never>;
+  version: number;
 }
 
 export type TaskFromDB = Selectable<TaskTable>;

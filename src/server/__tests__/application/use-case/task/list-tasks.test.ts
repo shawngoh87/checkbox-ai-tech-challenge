@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ListTasksUseCase } from '../../../../application/use-case/task/list-tasks.js';
-import { TaskRepository } from '../../../../infra/repository/task/task.repository.interface.js';
+import { TaskRepository } from '../../../../infra/repository/task/task.repository.js';
 
 describe('ListTasksUseCase', () => {
   let mockRepository: { findAll: ReturnType<typeof vi.fn> };
@@ -15,6 +15,7 @@ describe('ListTasksUseCase', () => {
           description: 'Description 1',
           dueAt: new Date(),
           createdAt: new Date(),
+          version: 0,
         },
         {
           id: '2',
@@ -22,6 +23,7 @@ describe('ListTasksUseCase', () => {
           description: 'Description 2',
           dueAt: new Date(),
           createdAt: new Date(),
+          version: 0,
         },
       ]),
     };
