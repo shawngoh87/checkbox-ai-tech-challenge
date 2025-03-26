@@ -38,7 +38,7 @@ describe('CreateTaskForm', () => {
     expect(mockOnCreateTask).toHaveBeenCalledWith({
       name: 'New Test Task',
       description: 'New Test Description',
-      dueDate: expect.any(String),
+      dueAt: expect.any(String),
     });
 
     expect(screen.getByLabelText(/Name:/)).toHaveValue('');

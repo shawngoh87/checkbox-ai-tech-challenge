@@ -15,16 +15,16 @@ describe('TaskAPI', () => {
 
   describe('listTasks', () => {
     it('fetches tasks from the API and calculates status', async () => {
-      const createDate = new Date();
-      const dueDate = new Date(createDate.getTime() + 86400000 * 10);
+      const createdAt = new Date();
+      const dueAt = new Date(createdAt.getTime() + 86400000 * 10);
       const mockListTasksResponse = {
         tasks: [
           {
             id: '1',
             name: 'Task 1',
             description: 'Description 1',
-            dueAt: dueDate.toISOString(),
-            createdAt: createDate.toISOString(),
+            dueAt: dueAt.toISOString(),
+            createdAt: createdAt.toISOString(),
           },
         ],
       };
@@ -43,8 +43,8 @@ describe('TaskAPI', () => {
           id: '1',
           name: 'Task 1',
           description: 'Description 1',
-          dueDate: dueDate.toISOString(),
-          createDate: createDate.toISOString(),
+          dueAt: dueAt.toISOString(),
+          createdAt: createdAt.toISOString(),
           status: TaskStatus.NOT_URGENT,
         },
       ]);
@@ -53,18 +53,18 @@ describe('TaskAPI', () => {
 
   describe('createTask', () => {
     it('creates a task via the API', async () => {
-      const createDate = new Date();
-      const dueDate = new Date(createDate.getTime() + 86400000 * 10);
+      const createdAt = new Date();
+      const dueAt = new Date(createdAt.getTime() + 86400000 * 10);
       const newTask = {
         name: 'New Task',
         description: 'New Description',
-        dueDate: dueDate.toISOString(),
+        dueAt: dueAt.toISOString(),
       };
 
       const mockResponse = {
         id: '123',
         ...newTask,
-        createDate: createDate.toISOString(),
+        createdAt: createdAt.toISOString(),
       };
 
       global.fetch = vi.fn().mockResolvedValueOnce({
@@ -81,8 +81,8 @@ describe('TaskAPI', () => {
         id: '123',
         name: 'New Task',
         description: 'New Description',
-        dueDate: dueDate.toISOString(),
-        createDate: createDate.toISOString(),
+        dueAt: dueAt.toISOString(),
+        createdAt: createdAt.toISOString(),
         status: TaskStatus.NOT_URGENT,
       });
     });
@@ -90,19 +90,19 @@ describe('TaskAPI', () => {
 
   describe('updateTask', () => {
     it('updates a task via the API', async () => {
-      const createDate = new Date();
-      const dueDate = new Date(createDate.getTime() + 86400000 * 10);
+      const createdAt = new Date();
+      const dueAt = new Date(createdAt.getTime() + 86400000 * 10);
       const taskId = '123';
       const updateData = {
         name: 'Updated Task',
         description: 'Updated Description',
-        dueDate: dueDate.toISOString(),
+        dueAt: dueAt.toISOString(),
       };
 
       const mockResponse = {
         id: taskId,
         ...updateData,
-        createDate: createDate.toISOString(),
+        createdAt: createdAt.toISOString(),
       };
 
       global.fetch = vi.fn().mockResolvedValueOnce({
@@ -118,8 +118,8 @@ describe('TaskAPI', () => {
         id: taskId,
         name: 'Updated Task',
         description: 'Updated Description',
-        dueDate: dueDate.toISOString(),
-        createDate: createDate.toISOString(),
+        dueAt: dueAt.toISOString(),
+        createdAt: createdAt.toISOString(),
         status: TaskStatus.NOT_URGENT,
       });
     });

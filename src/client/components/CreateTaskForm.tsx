@@ -9,7 +9,7 @@ interface CreateTaskFormProps {
 export function CreateTaskForm({ onCreateTask, isCreating }: CreateTaskFormProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [dueDate, setDueDate] = useState('');
+  const [dueAt, setdueAt] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,13 +17,13 @@ export function CreateTaskForm({ onCreateTask, isCreating }: CreateTaskFormProps
     onCreateTask({
       name,
       description,
-      dueDate: new Date(`${dueDate}T00:00:00`).toISOString(),
+      dueAt: new Date(`${dueAt}T00:00:00`).toISOString(),
     });
 
     // Reset form
     setName('');
     setDescription('');
-    setDueDate('');
+    setdueAt('');
   };
 
   return (
@@ -45,7 +45,7 @@ export function CreateTaskForm({ onCreateTask, isCreating }: CreateTaskFormProps
         </div>
         <div>
           <label htmlFor="task-due-date">Due Date:</label>
-          <input id="task-due-date" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} required />
+          <input id="task-due-date" type="date" value={dueAt} onChange={(e) => setdueAt(e.target.value)} required />
         </div>
         <div>
           <button type="submit" disabled={isCreating}>

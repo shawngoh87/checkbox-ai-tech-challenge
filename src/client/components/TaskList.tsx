@@ -2,7 +2,7 @@ import { Task } from '../types/task';
 
 interface TaskListProps {
   tasks: Task[];
-  onUpdateTask: (id: string, data: { name?: string; description?: string; dueDate?: string }) => void;
+  onUpdateTask: (id: string, data: { name?: string; description?: string; dueAt?: string }) => void;
   isLoading: boolean;
 }
 
@@ -22,7 +22,7 @@ export function TaskList({ tasks, isLoading }: TaskListProps) {
         <div key={task.id} data-testid={`task-card-${task.id}`}>
           <h3>{task.name}</h3>
           <p>{task.description}</p>
-          <p>{task.dueDate}</p>
+          <p>{task.dueAt}</p>
         </div>
       ))}
     </div>

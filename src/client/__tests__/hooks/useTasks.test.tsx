@@ -16,16 +16,16 @@ const mockTasks = [
     id: '1',
     name: 'Task 1',
     description: 'Description 1',
-    dueDate: '2025-05-01T00:00:00.000Z', // Further in future
-    createDate: '2025-04-01T00:00:00.000Z',
+    dueAt: '2025-05-01T00:00:00.000Z', // Further in future
+    createdAt: '2025-04-01T00:00:00.000Z',
     status: 'NOT_URGENT',
   },
   {
     id: '2',
     name: 'Task 2',
     description: 'Description 2',
-    dueDate: '2025-04-05T00:00:00.000Z', // Sooner
-    createDate: '2025-04-02T00:00:00.000Z',
+    dueAt: '2025-04-05T00:00:00.000Z', // Sooner
+    createdAt: '2025-04-02T00:00:00.000Z',
     status: 'DUE_SOON',
   },
 ];
@@ -77,7 +77,7 @@ describe('useTasks', () => {
     const newTask = {
       name: 'New Task',
       description: 'New Description',
-      dueDate: '2025-05-01T00:00:00.000Z',
+      dueAt: '2025-05-01T00:00:00.000Z',
     };
 
     await act(async () => {

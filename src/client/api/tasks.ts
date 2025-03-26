@@ -4,13 +4,13 @@ import { Task, TaskStatus } from '../types/task.js';
 export interface CreateTaskPayload {
   name: string;
   description: string;
-  dueDate: string;
+  dueAt: string;
 }
 
 export interface UpdateTaskPayload {
   name?: string;
   description?: string;
-  dueDate?: string;
+  dueAt?: string;
 }
 
 const API_BASE_URL = '/api/v1/tasks';
@@ -28,8 +28,8 @@ export async function listTasks(): Promise<Task[]> {
     id: task.id.toString(),
     name: task.name,
     description: task.description,
-    dueDate: task.dueAt,
-    createDate: task.createdAt,
+    dueAt: task.dueAt,
+    createdAt: task.createdAt,
     status: calculateTaskStatus(task.dueAt),
   }));
 }
@@ -50,7 +50,7 @@ export async function createTask(taskData: CreateTaskPayload): Promise<Task> {
   const task = await response.json();
   return {
     ...task,
-    status: calculateTaskStatus(task.dueDate),
+    status: calculateTaskStatus(task.dueAt),
   };
 }
 
@@ -70,20 +70,20 @@ export async function updateTask(taskId: string, taskData: UpdateTaskPayload): P
   const task = await response.json();
   return {
     ...task,
-    status: calculateTaskStatus(task.dueDate),
+    status: calculateTaskStatus(task.dueAt),
   };
 }
 
 // TODO: Move this to domain/util
-export function calculateTaskStatus(dueDate: string): TaskStatus {
-  const dueDateObj = new Date(dueDate);
+export function calculateTaskStatus(dueAt: string): TaskStatus {
+  const dueAtObj = new Date(dueAt);
   const currentDate = new Date();
   const sevenDaysFromNow = new Date();
   sevenDaysFromNow.setDate(currentDate.getDate() + 7);
 
-  if (dueDateObj < currentDate) {
+  if (dueAtObj < currentDate) {
     return TaskStatus.OVERDUE;
-  } else if (dueDateObj <= sevenDaysFromNow) {
+  } else if (dueAtObj <= sevenDaysFromNow) {
     return TaskStatus.DUE_SOON;
   } else {
     return TaskStatus.NOT_URGENT;
