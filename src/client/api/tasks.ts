@@ -50,7 +50,6 @@ export async function createTask(taskData: CreateTaskPayload): Promise<Task> {
   const task = await response.json();
   return {
     ...task,
-    status: calculateTaskStatus(task.dueAt),
   };
 }
 
@@ -70,7 +69,6 @@ export async function updateTask(taskId: string, taskData: UpdateTaskPayload): P
   const task = await response.json();
   return {
     ...task,
-    status: calculateTaskStatus(task.dueAt),
   };
 }
 
