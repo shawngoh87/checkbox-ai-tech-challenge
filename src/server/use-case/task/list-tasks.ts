@@ -1,5 +1,5 @@
-import { Task } from '../../types/task.js';
-import { TaskRepository } from '../../repository/task/task.repository.interface.js';
+import { Task } from '../../domain/task/task.model.js';
+import { TaskRepository } from '../../infra/repository/task/task.repository.interface.js';
 
 export class UnknownError extends Error {
   constructor() {

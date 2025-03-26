@@ -7,8 +7,12 @@ export class TaskController {
   async listTasks(req: Request, res: Response): Promise<void> {
     try {
       const tasks = await this.listTasksUseCase.execute();
+      const tasksJSON = tasks.map((task) => task.toPlainObject());
 
-      res.status(200).json(tasks); // TODO: Modularize HTTP codes
+      // TODO: Modularize HTTP codes
+      res.status(200).json({
+        tasks: tasksJSON,
+      });
     } catch (error) {
       if (error instanceof ListTasksUseCase.UnknownError) {
         res.status(500).json({ error: 'Failed to retrieve tasks' });

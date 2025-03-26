@@ -17,19 +17,21 @@ describe('TaskAPI', () => {
     it('fetches tasks from the API and calculates status', async () => {
       const createDate = new Date();
       const dueDate = new Date(createDate.getTime() + 86400000 * 10);
-      const mockTasks = [
-        {
-          id: '1',
-          name: 'Task 1',
-          description: 'Description 1',
-          dueDate: dueDate.toISOString(),
-          createDate: createDate.toISOString(),
-        },
-      ];
+      const mockFetchTasksResponse = {
+        tasks: [
+          {
+            id: '1',
+            name: 'Task 1',
+            description: 'Description 1',
+            dueAt: dueDate.toISOString(),
+            createdAt: createDate.toISOString(),
+          },
+        ],
+      };
 
       global.fetch = vi.fn().mockResolvedValueOnce({
         ok: true,
-        json: async () => mockTasks,
+        json: async () => mockFetchTasksResponse,
       });
 
       const result = await fetchTasks();

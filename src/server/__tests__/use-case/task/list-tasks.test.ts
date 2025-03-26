@@ -1,22 +1,42 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { InMemoryTaskRepository } from '../../../repository/task/in-memory-task.repository.js';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ListTasksUseCase } from '../../../use-case/task/list-tasks.js';
+import { TaskRepository } from '../../../infra/repository/task/task.repository.interface.js';
 
 describe('ListTasksUseCase', () => {
-  let repository: InMemoryTaskRepository;
+  let mockRepository: { findAll: ReturnType<typeof vi.fn> };
   let listTasksUseCase: ListTasksUseCase;
 
   beforeEach(() => {
-    repository = new InMemoryTaskRepository();
-    listTasksUseCase = new ListTasksUseCase(repository);
+    mockRepository = {
+      findAll: vi.fn().mockResolvedValue([
+        {
+          id: '1',
+          name: 'Task 1',
+          description: 'Description 1',
+          dueAt: new Date(),
+          createdAt: new Date(),
+        },
+        {
+          id: '2',
+          name: 'Task 2',
+          description: 'Description 2',
+          dueAt: new Date(),
+          createdAt: new Date(),
+        },
+      ]),
+    };
+    listTasksUseCase = new ListTasksUseCase(mockRepository as unknown as TaskRepository);
   });
+
   it('should return tasks from the repository', async () => {
     const result = await listTasksUseCase.execute();
+
+    expect(mockRepository.findAll).toHaveBeenCalled();
     expect(result.length).toBeGreaterThan(0);
     expect(result[0]).toHaveProperty('id');
     expect(result[0]).toHaveProperty('name');
     expect(result[0]).toHaveProperty('description');
-    expect(result[0]).toHaveProperty('dueDate');
-    expect(result[0]).toHaveProperty('createDate');
+    expect(result[0]).toHaveProperty('dueAt');
+    expect(result[0]).toHaveProperty('createdAt');
   });
 });
