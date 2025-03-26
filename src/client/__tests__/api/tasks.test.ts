@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { fetchTasks, createTask, updateTask, calculateTaskStatus } from '../../api/tasks';
+import { listTasks, createTask, updateTask, calculateTaskStatus } from '../../api/tasks';
 import { TaskStatus } from '../../types/task';
 
 const originalFetch = global.fetch;
@@ -13,11 +13,11 @@ describe('TaskAPI', () => {
     global.fetch = originalFetch;
   });
 
-  describe('fetchTasks', () => {
+  describe('listTasks', () => {
     it('fetches tasks from the API and calculates status', async () => {
       const createDate = new Date();
       const dueDate = new Date(createDate.getTime() + 86400000 * 10);
-      const mockFetchTasksResponse = {
+      const mockListTasksResponse = {
         tasks: [
           {
             id: '1',
@@ -31,10 +31,10 @@ describe('TaskAPI', () => {
 
       global.fetch = vi.fn().mockResolvedValueOnce({
         ok: true,
-        json: async () => mockFetchTasksResponse,
+        json: async () => mockListTasksResponse,
       });
 
-      const result = await fetchTasks();
+      const result = await listTasks();
 
       expect(global.fetch).toHaveBeenCalledWith('/api/v1/tasks');
       expect(result).toHaveLength(1);

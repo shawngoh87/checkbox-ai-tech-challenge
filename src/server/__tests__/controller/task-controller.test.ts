@@ -40,14 +40,29 @@ describe('TaskController', () => {
       };
 
       const tasks = [new Task(task1Props), new Task(task2Props)];
-      (mockListTasksUseCase.execute as ReturnType<typeof vi.fn>).mockResolvedValue(tasks);
+      mockListTasksUseCase.execute.mockResolvedValue(tasks);
 
       await taskController.listTasks(mockRequest as Request, mockResponse as Response);
 
       expect(mockListTasksUseCase.execute).toHaveBeenCalled();
       expect(mockResponse.status).toHaveBeenCalledWith(200);
       expect(mockResponse.json).toHaveBeenCalledWith({
-        tasks: [task1Props, task2Props],
+        tasks: [
+          {
+            id: '1',
+            name: 'Test Task',
+            description: 'Test Description',
+            dueAt: '2023-12-31T00:00:00.000Z',
+            createdAt: '2023-01-01T00:00:00.000Z',
+          },
+          {
+            id: '2',
+            name: 'Test Task 2',
+            description: 'Test Description 2',
+            dueAt: '2023-12-31T00:00:00.000Z',
+            createdAt: '2023-01-01T00:00:00.000Z',
+          },
+        ],
       });
     });
 

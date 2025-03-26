@@ -6,7 +6,7 @@ import * as taskApi from '../../api/tasks';
 
 // TODO: Mock current date
 vi.mock('../../api/tasks', () => ({
-  fetchTasks: vi.fn(),
+  listTasks: vi.fn(),
   createTask: vi.fn(),
   updateTask: vi.fn(),
 }));
@@ -46,7 +46,7 @@ function createWrapper() {
 describe('useTasks', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (taskApi.fetchTasks as ReturnType<typeof vi.fn>).mockResolvedValue(mockTasks);
+    (taskApi.listTasks as ReturnType<typeof vi.fn>).mockResolvedValue(mockTasks);
   });
 
   it('returns tasks and loading state', async () => {
@@ -65,7 +65,7 @@ describe('useTasks', () => {
   });
 
   it('calls createTask when creating a task', async () => {
-    (taskApi.fetchTasks as ReturnType<typeof vi.fn>).mockResolvedValue(mockTasks);
+    (taskApi.listTasks as ReturnType<typeof vi.fn>).mockResolvedValue(mockTasks);
     (taskApi.createTask as ReturnType<typeof vi.fn>).mockResolvedValue({ id: '3', name: 'New Task' });
 
     const { result } = renderHook(() => useTasks(), {

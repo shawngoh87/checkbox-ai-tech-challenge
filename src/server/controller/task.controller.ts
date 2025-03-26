@@ -1,13 +1,23 @@
 import { Request, Response } from 'express';
 import { ListTasksUseCase } from '../use-case/task/list-tasks.js';
+import { ErrorResponse, ListTasksResponse } from '../../common/types.js';
 
 export class TaskController {
   constructor(private listTasksUseCase: ListTasksUseCase) {}
 
-  async listTasks(req: Request, res: Response): Promise<void> {
+  async listTasks(req: Request, res: Response<ListTasksResponse | ErrorResponse>): Promise<void> {
     try {
       const tasks = await this.listTasksUseCase.execute();
-      const tasksJSON = tasks.map((task) => task.toPlainObject());
+      const tasksJSON = tasks.map((task) => {
+        const plain = task.toPlainObject();
+        return {
+          id: plain.id,
+          name: plain.name,
+          description: plain.description,
+          dueAt: plain.dueAt.toISOString(),
+          createdAt: plain.createdAt.toISOString(),
+        };
+      });
 
       // TODO: Modularize HTTP codes
       res.status(200).json({

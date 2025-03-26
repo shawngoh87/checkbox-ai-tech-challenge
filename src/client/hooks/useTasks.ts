@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchTasks, createTask, updateTask, CreateTaskPayload, UpdateTaskPayload } from '../api/tasks';
+import { listTasks, createTask, updateTask, CreateTaskPayload, UpdateTaskPayload } from '../api/tasks';
 
 export function useTasks() {
   const queryClient = useQueryClient();
@@ -11,7 +11,7 @@ export function useTasks() {
     refetch,
   } = useQuery({
     queryKey: ['tasks'],
-    queryFn: fetchTasks,
+    queryFn: listTasks,
   });
 
   const createTaskMutation = useMutation({

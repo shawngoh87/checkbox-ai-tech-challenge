@@ -1,3 +1,4 @@
+import { ListTasksResponse } from '../../common/types.js';
 import { Task, TaskStatus } from '../types/task.js';
 
 export interface CreateTaskPayload {
@@ -14,25 +15,14 @@ export interface UpdateTaskPayload {
 
 const API_BASE_URL = '/api/v1/tasks';
 
-// TODO: Move to shared types between server and client
-export type FetchTaskResponse = {
-  tasks: {
-    id: string;
-    name: string;
-    description: string;
-    dueAt: string;
-    createdAt: string;
-  }[];
-};
-
-export async function fetchTasks(): Promise<Task[]> {
+export async function listTasks(): Promise<Task[]> {
   const response = await fetch(API_BASE_URL);
 
   if (!response.ok) {
     throw new Error('Failed to fetch tasks');
   }
 
-  const body = (await response.json()) as FetchTaskResponse;
+  const body = (await response.json()) as ListTasksResponse;
 
   return body.tasks.map((task) => ({
     id: task.id,
