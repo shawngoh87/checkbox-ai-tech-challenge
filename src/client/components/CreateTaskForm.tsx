@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { CreateTaskPayload } from '../api/tasks';
+import { TextInput, Textarea, Button, Paper, Title, Stack } from '@mantine/core';
+import { DateInput } from '@mantine/dates';
 
 interface CreateTaskFormProps {
   onCreateTask: (task: CreateTaskPayload) => void;
@@ -9,50 +11,61 @@ interface CreateTaskFormProps {
 export function CreateTaskForm({ onCreateTask, isCreating }: CreateTaskFormProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [dueAt, setdueAt] = useState('');
+  const [dueAt, setDueAt] = useState<Date | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!dueAt) return;
 
     onCreateTask({
       name,
       description,
-      dueAt: new Date(`${dueAt}T00:00:00`).toISOString(),
+      dueAt: dueAt.toISOString(),
     });
 
     // Reset form
     setName('');
     setDescription('');
-    setdueAt('');
+    setDueAt(null);
   };
 
   return (
-    <div data-testid="create-task-form">
-      <h2>Create New Task</h2>
+    <Paper withBorder p="md" radius="md" data-testid="create-task-form">
+      <Title order={2} mb="md">
+        Create New Task
+      </Title>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="task-name">Name:</label>
-          <input id="task-name" type="text" value={name} onChange={(e) => setName(e.target.value)} required />
-        </div>
-        <div>
-          <label htmlFor="task-description">Description:</label>
-          <textarea
-            id="task-description"
+        <Stack>
+          <TextInput
+            label="Task Name"
+            placeholder="Enter task name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            data-testid="task-name"
+          />
+          <Textarea
+            label="Description"
+            placeholder="Enter task description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required
+            minRows={3}
+            data-testid="task-description"
           />
-        </div>
-        <div>
-          <label htmlFor="task-due-date">Due Date:</label>
-          <input id="task-due-date" type="date" value={dueAt} onChange={(e) => setdueAt(e.target.value)} required />
-        </div>
-        <div>
-          <button type="submit" disabled={isCreating}>
+          <DateInput
+            label="Due Date"
+            placeholder="Select due date"
+            value={dueAt}
+            onChange={setDueAt}
+            required
+            data-testid="task-due-date"
+          />
+          <Button type="submit" loading={isCreating}>
             {isCreating ? 'Creating...' : 'Create Task'}
-          </button>
-        </div>
+          </Button>
+        </Stack>
       </form>
-    </div>
+    </Paper>
   );
 }

@@ -1,30 +1,106 @@
-import { Task } from '../types/task';
+import { Task, TaskStatus } from '../types/task';
+import { Text, Badge, Loader, Center } from '@mantine/core';
+import { DataTable } from 'mantine-datatable';
+import { format } from 'date-fns';
+import { useState } from 'react';
+import { EditTaskModal } from './EditTaskModal';
 
 interface TaskListProps {
   tasks: Task[];
   onUpdateTask: (id: string, data: { name?: string; description?: string; dueAt?: string }) => void;
   isLoading: boolean;
+  isUpdating?: boolean;
 }
 
-export function TaskList({ tasks, isLoading }: TaskListProps) {
+const getStatusColor = (status: TaskStatus) => {
+  switch (status) {
+    case TaskStatus.OVERDUE:
+      return 'red';
+    case TaskStatus.DUE_SOON:
+      return 'yellow';
+    case TaskStatus.NOT_URGENT:
+      return 'green';
+  }
+};
+
+export function TaskList({ tasks, onUpdateTask, isLoading, isUpdating }: TaskListProps) {
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
   if (isLoading) {
-    return <div data-testid="task-list-loading">Loading tasks...</div>;
+    return (
+      <Center h={200} data-testid="task-list-loading">
+        <Loader size="lg" />
+      </Center>
+    );
   }
 
-  if (tasks.length === 0) {
-    return <div data-testid="task-list-empty">No tasks found. Create a new task to get started.</div>;
-  }
+  const handleRowClick = (record: Task) => {
+    setSelectedTask(record);
+    setIsEditModalOpen(true);
+  };
 
   return (
     <div data-testid="task-list">
-      <h2>Tasks</h2>
-      {tasks.map((task) => (
-        <div key={task.id} data-testid={`task-card-${task.id}`}>
-          <h3>{task.name}</h3>
-          <p>{task.description}</p>
-          <p>{task.dueAt}</p>
-        </div>
-      ))}
+      <DataTable
+        withTableBorder
+        borderRadius="sm"
+        withColumnBorders
+        striped
+        highlightOnHover
+        records={tasks}
+        columns={[
+          {
+            accessor: 'name',
+            title: 'Name',
+            width: '20%',
+          },
+          {
+            accessor: 'description',
+            title: 'Description',
+            width: '30%',
+          },
+          {
+            accessor: 'status',
+            title: 'Status',
+            width: '15%',
+            render: ({ status }) => {
+              const color = getStatusColor(status);
+              return <Badge color={color}>{status.replace('_', ' ')}</Badge>;
+            },
+          },
+          {
+            accessor: 'createdAt',
+            title: 'Created',
+            width: '17.5%',
+            render: ({ createdAt }) => <Text size="sm">{format(new Date(createdAt), 'PPP')}</Text>,
+          },
+          {
+            accessor: 'dueAt',
+            title: 'Due Date',
+            width: '17.5%',
+            render: ({ dueAt }) => <Text size="sm">{format(new Date(dueAt), 'PPP')}</Text>,
+          },
+        ]}
+        noRecordsText="No tasks found. Create a new task to get started."
+        minHeight={200}
+        sortStatus={{ columnAccessor: 'dueAt', direction: 'asc' }}
+        defaultColumnProps={{
+          sortable: true,
+        }}
+        onRowClick={({ record }) => handleRowClick(record)}
+      />
+
+      <EditTaskModal
+        task={selectedTask}
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedTask(null);
+        }}
+        onUpdateTask={onUpdateTask}
+        isUpdating={isUpdating}
+      />
     </div>
   );
 }

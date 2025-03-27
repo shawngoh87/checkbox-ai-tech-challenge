@@ -1,14 +1,22 @@
 import { TasksPage } from './pages/TasksPage';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MantineProvider, AppShell, Container } from '@mantine/core';
+import '@mantine/core/styles.css';
+import '@mantine/dates/styles.css';
+import 'mantine-datatable/styles.layer.css';
 
 const queryClient = new QueryClient();
 
 export function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <div className="app">
-        <TasksPage />
-      </div>
-    </QueryClientProvider>
+    <MantineProvider>
+      <QueryClientProvider client={queryClient}>
+        <AppShell>
+          <Container size="lg" py="xl">
+            <TasksPage />
+          </Container>
+        </AppShell>
+      </QueryClientProvider>
+    </MantineProvider>
   );
 }
