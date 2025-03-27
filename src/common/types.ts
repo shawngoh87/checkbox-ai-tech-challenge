@@ -8,6 +8,15 @@ export const CreateTaskRequest = z.object({
 
 export type CreateTaskRequest = z.infer<typeof CreateTaskRequest>;
 
+export const UpdateTaskRequest = z.object({
+  name: z.string().min(1).max(200),
+  description: z.string().min(1).max(5000),
+  dueAt: z.string().datetime(),
+  version: z.number().int().min(0),
+});
+
+export type UpdateTaskRequest = z.infer<typeof UpdateTaskRequest>;
+
 export type ListTasksResponse = {
   tasks: {
     id: string;
@@ -28,6 +37,15 @@ export type CreateTaskResponse = {
     createdAt: string;
     version: number;
   };
+};
+
+export type UpdateTaskResponse = {
+  id: string;
+  name: string;
+  description: string;
+  dueAt: string;
+  createdAt: string;
+  version: number;
 };
 
 export type ErrorResponse = {

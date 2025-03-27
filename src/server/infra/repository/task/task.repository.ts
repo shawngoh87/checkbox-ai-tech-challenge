@@ -63,4 +63,35 @@ export class TaskRepository {
       throw new TaskRepository.DatabaseError('Failed to create task');
     }
   }
+
+  async update(params: { id: string; task: Task }): Promise<Task> {
+    const task = params.task.toPlainObject();
+    try {
+      const result = await this.db
+        .updateTable('task')
+        .set({
+          name: task.name,
+          description: task.description,
+          due_at: task.dueAt,
+          version: task.version + 1,
+        })
+        .where('id', '=', params.id)
+        .where('version', '=', task.version)
+        .returningAll()
+        .executeTakeFirst();
+
+      if (!result) {
+        throw new TaskRepository.DatabaseError('Task not found or version mismatch');
+      }
+
+      return this.mapToDomain(result);
+    } catch (error) {
+      // TODO: Handle not found vs version mismatch separately
+      logger.error(error);
+      if (error instanceof TaskRepository.DatabaseError) {
+        throw error;
+      }
+      throw new TaskRepository.DatabaseError('Failed to update task');
+    }
+  }
 }
