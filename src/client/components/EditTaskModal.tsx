@@ -7,7 +7,7 @@ interface EditTaskModalProps {
   task: Task | null;
   isOpen: boolean;
   onClose: () => void;
-  onUpdateTask: (id: string, data: { name?: string; description?: string; dueAt?: string }) => void;
+  onUpdateTask: (id: string, data: { name?: string; description?: string; dueAt?: string; version: number }) => void;
   isUpdating?: boolean;
 }
 
@@ -16,14 +16,13 @@ export function EditTaskModal({ task, isOpen, onClose, onUpdateTask, isUpdating 
   const [description, setDescription] = useState(task?.description ?? '');
   const [dueAt, setDueAt] = useState<Date | null>(task?.dueAt ? new Date(task.dueAt) : null);
 
-  // Update form when task changes
   useEffect(() => {
     if (task) {
       setName(task.name);
       setDescription(task.description);
       setDueAt(new Date(task.dueAt));
     }
-  }, [task]); // Only re-run when task changes
+  }, [task]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +32,7 @@ export function EditTaskModal({ task, isOpen, onClose, onUpdateTask, isUpdating 
       name,
       description,
       dueAt: dueAt.toISOString(),
+      version: task.version,
     });
     onClose();
   };

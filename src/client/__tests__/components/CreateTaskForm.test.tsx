@@ -1,7 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { MantineProvider } from '@mantine/core';
 import { CreateTaskForm } from '../../components/CreateTaskForm';
+
+const renderWithProviders = (ui: React.ReactElement) => {
+  return render(<MantineProvider>{ui}</MantineProvider>);
+};
 
 describe('CreateTaskForm', () => {
   const mockOnCreateTask = vi.fn();
@@ -11,26 +16,27 @@ describe('CreateTaskForm', () => {
   });
 
   it('renders the form correctly', () => {
-    render(<CreateTaskForm onCreateTask={mockOnCreateTask} isCreating={false} />);
+    renderWithProviders(<CreateTaskForm onCreateTask={mockOnCreateTask} isCreating={false} />);
 
-    expect(screen.getByLabelText(/Name:/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Description:/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Due Date:/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Task Name/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Description/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Due Date/)).toBeInTheDocument();
     expect(screen.getByText('Create Task')).toBeInTheDocument();
   });
 
   it('submits the form with task data', () => {
-    render(<CreateTaskForm onCreateTask={mockOnCreateTask} isCreating={false} />);
+    renderWithProviders(<CreateTaskForm onCreateTask={mockOnCreateTask} isCreating={false} />);
 
-    fireEvent.change(screen.getByLabelText(/Name:/), {
+    fireEvent.change(screen.getByLabelText(/Task Name/), {
       target: { value: 'New Test Task' },
     });
-    fireEvent.change(screen.getByLabelText(/Description:/), {
+    fireEvent.change(screen.getByLabelText(/Description/), {
       target: { value: 'New Test Description' },
     });
-    fireEvent.change(screen.getByLabelText(/Due Date:/), {
-      target: { value: '2023-06-01' },
-    });
+
+    const dateInput = screen.getByLabelText(/Due Date/);
+    fireEvent.change(dateInput, { target: { value: '2023-06-01' } });
+    fireEvent.blur(dateInput);
 
     const form = screen.getByTestId('create-task-form').querySelector('form');
     fireEvent.submit(form!);
@@ -41,14 +47,14 @@ describe('CreateTaskForm', () => {
       dueAt: expect.any(String),
     });
 
-    expect(screen.getByLabelText(/Name:/)).toHaveValue('');
-    expect(screen.getByLabelText(/Description:/)).toHaveValue('');
-    expect(screen.getByLabelText(/Due Date:/)).toHaveValue('');
+    expect(screen.getByLabelText(/Task Name/)).toHaveValue('');
+    expect(screen.getByLabelText(/Description/)).toHaveValue('');
   });
 
   it('disables the submit button when isCreating is true', () => {
-    render(<CreateTaskForm onCreateTask={mockOnCreateTask} isCreating={true} />);
+    renderWithProviders(<CreateTaskForm onCreateTask={mockOnCreateTask} isCreating={true} />);
 
-    expect(screen.getByText('Creating...')).toBeDisabled();
+    const button = screen.getByRole('button', { name: /Creating.../ });
+    expect(button).toHaveAttribute('data-loading');
   });
 });

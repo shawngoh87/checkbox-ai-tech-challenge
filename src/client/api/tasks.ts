@@ -11,6 +11,7 @@ export interface UpdateTaskPayload {
   name?: string;
   description?: string;
   dueAt?: string;
+  version: number;
 }
 
 const API_BASE_URL = '/api/v1/tasks';
@@ -25,11 +26,7 @@ export async function listTasks(): Promise<Task[]> {
   const body = (await response.json()) as ListTasksResponse;
 
   return body.tasks.map((task) => ({
-    id: task.id.toString(),
-    name: task.name,
-    description: task.description,
-    dueAt: task.dueAt,
-    createdAt: task.createdAt,
+    ...task,
     status: calculateTaskStatus(task.dueAt),
   }));
 }

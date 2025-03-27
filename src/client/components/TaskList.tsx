@@ -7,7 +7,7 @@ import { EditTaskModal } from './EditTaskModal';
 
 interface TaskListProps {
   tasks: Task[];
-  onUpdateTask: (id: string, data: { name?: string; description?: string; dueAt?: string }) => void;
+  onUpdateTask: (id: string, data: { name?: string; description?: string; dueAt?: string; version: number }) => void;
   isLoading: boolean;
   isUpdating?: boolean;
 }
@@ -54,11 +54,13 @@ export function TaskList({ tasks, onUpdateTask, isLoading, isUpdating }: TaskLis
             accessor: 'name',
             title: 'Name',
             width: '20%',
+            render: ({ name }) => <div data-testid="task-name">{name}</div>,
           },
           {
             accessor: 'description',
             title: 'Description',
             width: '30%',
+            render: ({ description }) => <div data-testid="task-description">{description}</div>,
           },
           {
             accessor: 'status',
@@ -66,20 +68,32 @@ export function TaskList({ tasks, onUpdateTask, isLoading, isUpdating }: TaskLis
             width: '15%',
             render: ({ status }) => {
               const color = getStatusColor(status);
-              return <Badge color={color}>{status.replace('_', ' ')}</Badge>;
+              return (
+                <Badge data-testid="task-status" color={color}>
+                  {status.replace('_', ' ')}
+                </Badge>
+              );
             },
           },
           {
             accessor: 'createdAt',
             title: 'Created',
             width: '17.5%',
-            render: ({ createdAt }) => <Text size="sm">{format(new Date(createdAt), 'PPP')}</Text>,
+            render: ({ createdAt }) => (
+              <Text data-testid="task-created-at" size="sm">
+                {format(new Date(createdAt), 'PPP')}
+              </Text>
+            ),
           },
           {
             accessor: 'dueAt',
             title: 'Due Date',
             width: '17.5%',
-            render: ({ dueAt }) => <Text size="sm">{format(new Date(dueAt), 'PPP')}</Text>,
+            render: ({ dueAt }) => (
+              <Text data-testid="task-due-at" size="sm">
+                {format(new Date(dueAt), 'PPP')}
+              </Text>
+            ),
           },
         ]}
         noRecordsText="No tasks found. Create a new task to get started."

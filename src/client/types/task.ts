@@ -5,6 +5,7 @@ export type Task = {
   dueAt: string;
   createdAt: string;
   status: TaskStatus;
+  version: number;
 };
 
 export const TaskStatus = {
