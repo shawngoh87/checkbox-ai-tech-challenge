@@ -34,7 +34,8 @@
     "react-dom": "^18.2.0",
     "uuid": "^11.1.0",
     "vite-express": "*",
-    "vitest": "^3.0.9"
+    "vitest": "^3.0.9",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.23.0",
