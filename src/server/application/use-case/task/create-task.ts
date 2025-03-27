@@ -1,12 +1,6 @@
 import { Task } from '../../../domain/task/task.model.js';
 import { TaskRepository } from '../../../infra/repository/task/task.repository.js';
-
-// TODO: Move to common
-class UnknownError extends Error {
-  constructor() {
-    super('Unknown error');
-  }
-}
+import { UnknownError } from '../../error.js';
 
 export type CreateTaskParams = {
   name: string;
@@ -44,7 +38,7 @@ export class CreateTaskUseCase {
         return result;
       }
 
-      throw new CreateTaskUseCase.UnknownError();
+      throw new CreateTaskUseCase.UnknownError('Failed to create task');
     }
   }
 }

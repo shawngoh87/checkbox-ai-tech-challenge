@@ -1,13 +1,8 @@
 import { Request, Response } from 'express';
-import { CreateTaskRequest, CreateTaskResponse, ErrorResponse } from '../../../common/types.js';
-import { CreateTaskUseCase } from '../use-case/task/create-task.js';
-
-export class ValidationError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'ValidationError';
-  }
-}
+import { CreateTaskRequest, CreateTaskResponse, ErrorResponse } from '../../../../common/types.js';
+import { CreateTaskUseCase } from '../../use-case/task/create-task.js';
+import { HTTP_STATUS } from '../../http-status.js';
+import { ValidationError } from '../../error.js';
 
 export class CreateTaskController {
   constructor(private createTaskUseCase: CreateTaskUseCase) {}
@@ -33,7 +28,7 @@ export class CreateTaskController {
       });
 
       const plain = task.toPlainObject();
-      res.status(201).json({
+      res.status(HTTP_STATUS.CREATED).json({
         task: {
           id: plain.id,
           name: plain.name,
@@ -45,11 +40,11 @@ export class CreateTaskController {
       });
     } catch (error) {
       if (error instanceof ValidationError) {
-        res.status(422).json({ error: error.message });
+        res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).json({ error: error.message });
         return;
       }
 
-      res.status(500).json({ error: 'Unknown error' });
+      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Unknown error' });
     }
   }
 }

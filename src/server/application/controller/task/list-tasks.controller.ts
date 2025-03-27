@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
-import { ListTasksUseCase } from '../use-case/task/list-tasks.js';
-import { ErrorResponse, ListTasksResponse } from '../../../common/types.js';
+import { ListTasksUseCase } from '../../use-case/task/list-tasks.js';
+import { ErrorResponse, ListTasksResponse } from '../../../../common/types.js';
+import { HTTP_STATUS } from '../../http-status.js';
 
 export class ListTasksController {
   constructor(private listTasksUseCase: ListTasksUseCase) {}
@@ -20,17 +21,16 @@ export class ListTasksController {
         };
       });
 
-      // TODO: Modularize HTTP codes
-      res.status(200).json({
+      res.status(HTTP_STATUS.OK).json({
         tasks: tasksJSON,
       });
     } catch (error) {
       if (error instanceof ListTasksUseCase.UnknownError) {
-        res.status(500).json({ error: 'Failed to retrieve tasks' });
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Failed to retrieve tasks' });
         return;
       }
 
-      res.status(500).json({ error: 'Unknown error' });
+      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Unknown error' });
     }
   }
 }
