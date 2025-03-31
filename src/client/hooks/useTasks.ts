@@ -41,7 +41,7 @@ export function useTasks() {
         setRecords((prev) => [...prev, ...response.tasks]);
       }
       setNextCursor(response.nextCursor);
-    } catch (error) {
+    } catch {
       throw new Error('Failed to load more tasks');
     } finally {
       setLoading(false);
