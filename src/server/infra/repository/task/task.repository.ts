@@ -64,7 +64,7 @@ export class TaskRepository {
     }
   }
 
-  async update(params: { id: string; task: Task }): Promise<Task> {
+  async updateById(params: { id: string; task: Task }): Promise<Task> {
     const task = params.task.toPlainObject();
     try {
       const result = await this.db

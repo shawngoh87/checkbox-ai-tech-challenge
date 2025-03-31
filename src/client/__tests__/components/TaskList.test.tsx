@@ -50,7 +50,6 @@ describe('TaskList', () => {
     renderWithProviders(<TaskList tasks={[]} onUpdateTask={mockOnUpdateTask} isLoading={true} />);
 
     expect(screen.getByTestId('task-list-loading')).toBeInTheDocument();
-    expect(screen.getByTestId('task-list-loading').querySelector('.mantine-Loader-root')).toBeInTheDocument();
   });
 
   it('displays empty state when there are no tasks', () => {

@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Request, Response } from 'express';
-import { Task } from '../../../../domain/task/task.model.js';
-import { ListTasksController } from '../../../../application/controller/task/list-tasks.controller.js';
-import { ListTasksUseCase } from '../../../../application/use-case/task/list-tasks.js';
+import { Task } from '../../../domain/task/task.model.js';
+import { ListTasksController } from './list-tasks.controller.js';
+import { ListTasksUseCase } from '../../use-case/task/list-tasks.js';
 
 describe('ListTasksController', () => {
   let listTasksController: ListTasksController;

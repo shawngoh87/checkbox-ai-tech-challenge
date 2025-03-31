@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { CreateTaskUseCase } from '../../../../application/use-case/task/create-task.js';
-import { TaskRepository } from '../../../../infra/repository/task/task.repository.js';
-import { Task } from '../../../../domain/task/task.model.js';
+import { CreateTaskUseCase } from './create-task.js';
+import { TaskRepository } from '../../../infra/repository/task/task.repository.js';
+import { Task } from '../../../domain/task/task.model.js';
 
 describe('CreateTaskUseCase', () => {
   let mockRepository: { create: ReturnType<typeof vi.fn> };

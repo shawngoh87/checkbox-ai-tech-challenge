@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, beforeAll } from 'vitest';
-import { TaskRepository } from '../../../infra/repository/task/task.repository.js';
-import { Database } from '../../../infra/database/types.js';
+import { TaskRepository } from './task.repository.js';
+import { Database } from '../../database/types.js';
 import { Kysely } from 'kysely';
 import { prepareTestDatabase } from '../../test-utils.js';
 import { v4 as uuidv4 } from 'uuid';
@@ -115,6 +115,43 @@ describe('TaskRepository', () => {
           }),
         }),
       ).rejects.toThrow(TaskRepository.UniqueKeyConstraintError);
+    });
+  });
+
+  describe('updateById', () => {
+    it('should update a task', async () => {
+      const task = await taskRepository.updateById({
+        id: tasksFixture[0].id,
+        task: new Task({
+          id: tasksFixture[0].id,
+          name: 'Updated Task',
+          description: 'Updated Description',
+          dueAt: new Date(),
+          createdAt: new Date(),
+          version: 0,
+        }),
+      });
+
+      expect(task.toPlainObject()).toEqual({
+        id: tasksFixture[0].id,
+        name: 'Updated Task',
+        description: 'Updated Description',
+        dueAt: expect.any(Date),
+        createdAt: expect.any(Date),
+        version: 1,
+      });
+
+      // Check if task is indeed updated
+      const taskInDB = await db.selectFrom('task').where('id', '=', tasksFixture[0].id).selectAll().executeTakeFirst();
+
+      expect(taskInDB).toEqual({
+        id: expect.any(String),
+        name: 'Updated Task',
+        description: 'Updated Description',
+        due_at: expect.any(Date),
+        created_at: expect.any(Date),
+        version: 1,
+      });
     });
   });
 });
