@@ -10,12 +10,12 @@ export type TaskProps = {
 };
 
 export class Task {
-  private id: string;
-  private name: string;
-  private description: string;
-  private dueAt: Date;
-  private createdAt: Date;
-  private version: number;
+  id: string;
+  name: string;
+  description: string;
+  dueAt: Date;
+  createdAt: Date;
+  version: number;
 
   constructor(props: TaskProps) {
     this.id = props.id;
