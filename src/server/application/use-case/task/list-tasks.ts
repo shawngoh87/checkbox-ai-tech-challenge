@@ -20,7 +20,6 @@ export class ListTasksUseCase {
       const { tasks, nextCursor } = await this.taskRepository.findAll(params);
       return { tasks, nextCursor };
     } catch (error) {
-      console.error(error);
       throw new ListTasksUseCase.UnknownError('Failed to retrieve tasks');
     }
   }

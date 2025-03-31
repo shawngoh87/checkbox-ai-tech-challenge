@@ -54,7 +54,6 @@ export class ListTasksController implements Controller {
         nextCursor: result.nextCursor,
       });
     } catch (error) {
-      console.log('ERROR', error);
       if (error instanceof ValidationError) {
         res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).json({ error: error.message });
         return;
