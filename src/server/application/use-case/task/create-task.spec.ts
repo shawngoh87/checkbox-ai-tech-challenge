@@ -6,10 +6,10 @@ import { Task } from '../../../domain/task/task.model.js';
 describe('CreateTaskUseCase', () => {
   let mockRepository: { create: ReturnType<typeof vi.fn> };
   let createTaskUseCase: CreateTaskUseCase;
-  let task: Task;
+  let mockTask: Task;
 
   beforeEach(() => {
-    task = new Task({
+    mockTask = new Task({
       id: '3',
       name: 'Task 3',
       description: 'Description 3',
@@ -18,7 +18,7 @@ describe('CreateTaskUseCase', () => {
       version: 0,
     });
     mockRepository = {
-      create: vi.fn().mockResolvedValue(task),
+      create: vi.fn().mockResolvedValue(mockTask),
     };
     createTaskUseCase = new CreateTaskUseCase(mockRepository as unknown as TaskRepository);
   });
@@ -34,7 +34,7 @@ describe('CreateTaskUseCase', () => {
 
     expect(mockRepository.create).toHaveBeenCalled();
 
-    const taskPlainObject = task.toPlainObject();
+    const taskPlainObject = mockTask.toPlainObject();
     expect(result.id).toBe(taskPlainObject.id);
     expect(result.name).toBe(taskPlainObject.name);
     expect(result.description).toBe(taskPlainObject.description);
@@ -43,7 +43,7 @@ describe('CreateTaskUseCase', () => {
   });
 
   it('should retry once if unique key constraint error is thrown', async () => {
-    task = new Task({
+    mockTask = new Task({
       id: '4',
       name: 'Task 4',
       description: 'Description 4',
@@ -54,7 +54,7 @@ describe('CreateTaskUseCase', () => {
     mockRepository.create = vi
       .fn()
       .mockRejectedValueOnce(new TaskRepository.UniqueKeyConstraintError())
-      .mockResolvedValue(task);
+      .mockResolvedValue(mockTask);
 
     createTaskUseCase = new CreateTaskUseCase(mockRepository as unknown as TaskRepository);
 
