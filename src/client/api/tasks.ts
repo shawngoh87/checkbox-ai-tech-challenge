@@ -8,6 +8,7 @@ export interface CreateTaskPayload {
 }
 
 export interface UpdateTaskPayload {
+  id: string;
   name?: string;
   description?: string;
   dueAt?: string;
@@ -57,7 +58,10 @@ export async function updateTask(taskId: string, taskData: UpdateTaskPayload): P
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(taskData),
+    body: JSON.stringify({
+      ...taskData,
+      id: taskId,
+    }),
   });
 
   if (!response.ok) {
