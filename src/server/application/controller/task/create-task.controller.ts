@@ -3,9 +3,12 @@ import { CreateTaskRequest, CreateTaskResponse, ErrorResponse } from '../../../.
 import { CreateTaskUseCase } from '../../use-case/task/create-task.js';
 import { HTTP_STATUS } from '../../http-status.js';
 import { ValidationError } from '../../error.js';
+import { inject, injectable } from 'inversify';
+import { Controller } from '../controller.interface.js';
 
-export class CreateTaskController {
-  constructor(private createTaskUseCase: CreateTaskUseCase) {}
+@injectable()
+export class CreateTaskController implements Controller {
+  constructor(@inject(CreateTaskUseCase) private createTaskUseCase: CreateTaskUseCase) {}
 
   validate(body: unknown) {
     const result = CreateTaskRequest.safeParse(body);

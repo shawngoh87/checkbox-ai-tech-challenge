@@ -3,9 +3,12 @@ import { UpdateTaskUseCase } from '../../use-case/task/update-task.js';
 import { ErrorResponse, UpdateTaskRequest, UpdateTaskResponse } from '../../../../common/types.js';
 import { HTTP_STATUS } from '../../http-status.js';
 import { ValidationError } from '../../error.js';
+import { inject, injectable } from 'inversify';
+import { Controller } from '../controller.interface.js';
 
-export class UpdateTaskController {
-  constructor(private updateTaskUseCase: UpdateTaskUseCase) {}
+@injectable()
+export class UpdateTaskController implements Controller {
+  constructor(@inject(UpdateTaskUseCase) private updateTaskUseCase: UpdateTaskUseCase) {}
 
   validate(body: unknown) {
     const result = UpdateTaskRequest.safeParse(body);

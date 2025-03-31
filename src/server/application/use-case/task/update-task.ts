@@ -1,6 +1,7 @@
 import { Task } from '../../../domain/task/task.model.js';
 import { TaskRepository } from '../../../infra/repository/task/task.repository.js';
 import { UnknownError } from '../../error.js';
+import { inject, injectable } from 'inversify';
 
 export type UpdateTaskParams = {
   id: string;
@@ -10,10 +11,11 @@ export type UpdateTaskParams = {
   version: number;
 };
 
+@injectable()
 export class UpdateTaskUseCase {
   static UnknownError = UnknownError;
 
-  constructor(private taskRepository: TaskRepository) {}
+  constructor(@inject(TaskRepository) private taskRepository: TaskRepository) {}
 
   async execute(params: UpdateTaskParams): Promise<Task> {
     try {
@@ -26,7 +28,7 @@ export class UpdateTaskUseCase {
         version: params.version,
       });
 
-      const result = await this.taskRepository.update({
+      const result = await this.taskRepository.updateById({
         id: params.id,
         task,
       });

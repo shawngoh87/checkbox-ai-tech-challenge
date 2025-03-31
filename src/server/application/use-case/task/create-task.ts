@@ -1,6 +1,7 @@
 import { Task } from '../../../domain/task/task.model.js';
 import { TaskRepository } from '../../../infra/repository/task/task.repository.js';
 import { UnknownError } from '../../error.js';
+import { inject, injectable } from 'inversify';
 
 export type CreateTaskParams = {
   name: string;
@@ -8,10 +9,11 @@ export type CreateTaskParams = {
   dueAt: Date;
 };
 
+@injectable()
 export class CreateTaskUseCase {
   static UnknownError = UnknownError;
 
-  constructor(private taskRepository: TaskRepository) {}
+  constructor(@inject(TaskRepository) private readonly taskRepository: TaskRepository) {}
 
   async execute(params: CreateTaskParams): Promise<Task> {
     try {

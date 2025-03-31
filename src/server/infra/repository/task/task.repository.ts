@@ -2,6 +2,8 @@ import { Database, TaskFromDB } from '../../database/types.js';
 import { Kysely } from 'kysely';
 import { Task } from '../../../domain/task/task.model.js';
 import logger from '../../../utils/logger.js';
+import { inject, injectable } from 'inversify';
+import { getDatabaseServiceIdentifier } from '../../../constants.js';
 
 class DatabaseError extends Error {
   constructor(message: string) {
@@ -15,8 +17,9 @@ class UniqueKeyConstraintError extends DatabaseError {
   }
 }
 
+@injectable()
 export class TaskRepository {
-  constructor(private readonly db: Kysely<Database>) {}
+  constructor(@inject(getDatabaseServiceIdentifier()) private readonly db: Kysely<Database>) {}
 
   static DatabaseError = DatabaseError;
   static UniqueKeyConstraintError = UniqueKeyConstraintError;

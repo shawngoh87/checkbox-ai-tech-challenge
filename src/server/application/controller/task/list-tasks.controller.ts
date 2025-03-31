@@ -2,9 +2,11 @@ import { Request, Response } from 'express';
 import { ListTasksUseCase } from '../../use-case/task/list-tasks.js';
 import { ErrorResponse, ListTasksResponse } from '../../../../common/types.js';
 import { HTTP_STATUS } from '../../http-status.js';
-
-export class ListTasksController {
-  constructor(private listTasksUseCase: ListTasksUseCase) {}
+import { inject, injectable } from 'inversify';
+import { Controller } from '../controller.interface.js';
+@injectable()
+export class ListTasksController implements Controller {
+  constructor(@inject(ListTasksUseCase) private listTasksUseCase: ListTasksUseCase) {}
 
   async execute(req: Request, res: Response<ListTasksResponse | ErrorResponse>): Promise<void> {
     try {

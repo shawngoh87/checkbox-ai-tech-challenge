@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, beforeAll } from 'vitest';
 import { TaskRepository } from './task.repository.js';
 import { Database } from '../../database/types.js';
 import { Kysely } from 'kysely';
-import { prepareTestDatabase } from '../../test-utils.js';
+import { prepareTestDatabase } from '../../../utils/test-utils.js';
 import { v4 as uuidv4 } from 'uuid';
 import { Task } from '../../../domain/task/task.model.js';
 
