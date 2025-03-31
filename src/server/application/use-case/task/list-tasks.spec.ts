@@ -34,9 +34,19 @@ describe('ListTasksUseCase', () => {
   });
 
   it('should return tasks from the repository', async () => {
-    const result = await listTasksUseCase.execute();
+    const result = await listTasksUseCase.execute({
+      sortBy: 'created_at',
+      sortOrder: 'asc',
+      limit: 10,
+      cursor: 'somecursorstring',
+    });
 
-    expect(mockRepository.findAll).toHaveBeenCalled();
+    expect(mockRepository.findAll).toHaveBeenCalledWith({
+      sortBy: 'created_at',
+      sortOrder: 'asc',
+      limit: 10,
+      cursor: 'somecursorstring',
+    });
     expect(result.length).toBe(mockTasks.length);
     expect(result[0].toPlainObject()).toEqual(mockTasks[0].toPlainObject());
     expect(result[1].toPlainObject()).toEqual(mockTasks[1].toPlainObject());

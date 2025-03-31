@@ -3,21 +3,23 @@ import { Database } from '../../database/types.js';
 import { Task } from '../../../domain/task/task.model.js';
 import { inject, injectable } from 'inversify';
 import { getDatabaseServiceIdentifier } from '../../../constants.js';
+import { z } from 'zod';
 
 export type TaskRepositoryFindAllOptions = {
-  sortBy?: 'created_at' | 'due_at';
-  sortOrder?: 'asc' | 'desc';
+  sort?: 'created_at:asc' | 'created_at:desc' | 'due_at:asc' | 'due_at:desc';
   limit?: number;
-  cursor?: {
-    created_at?: Date;
-    due_at?: Date;
-    id: string;
-  };
+  cursor?: string;
 };
 
 class DatabaseError extends Error {
   constructor(message: string) {
     super(message);
+  }
+}
+
+class InvalidCursorError extends DatabaseError {
+  constructor() {
+    super('Invalid cursor format');
   }
 }
 
@@ -31,20 +33,59 @@ class UniqueKeyConstraintError extends DatabaseError {
 export class TaskRepository {
   static DatabaseError = DatabaseError;
   static UniqueKeyConstraintError = UniqueKeyConstraintError;
+  static InvalidCursorError = InvalidCursorError;
+
+  private readonly createdAtCursorSchema = z.object({
+    created_at: z.coerce.date(),
+    id: z.string(),
+  });
+
+  private readonly dueAtCursorSchema = z.object({
+    due_at: z.coerce.date(),
+    id: z.string(),
+  });
 
   constructor(@inject(getDatabaseServiceIdentifier()) private readonly db: Kysely<Database>) {}
 
+  decodeCursor(cursor: string) {
+    try {
+      const decodedJson = JSON.parse(Buffer.from(cursor, 'base64').toString());
+
+      const createdAtResult = this.createdAtCursorSchema.safeParse(decodedJson);
+      if (createdAtResult.success) {
+        return createdAtResult.data;
+      }
+
+      const dueAtResult = this.dueAtCursorSchema.safeParse(decodedJson);
+      if (dueAtResult.success) {
+        return dueAtResult.data;
+      }
+
+      throw new TaskRepository.InvalidCursorError();
+    } catch {
+      throw new TaskRepository.InvalidCursorError();
+    }
+  }
+
+  parseSortParam(sort: string | undefined) {
+    if (!sort) {
+      return { sortBy: 'created_at' as const, sortOrder: 'desc' as const };
+    }
+
+    const [sortBy, sortOrder] = sort.split(':');
+    return { sortBy: sortBy as 'created_at' | 'due_at', sortOrder: sortOrder as 'asc' | 'desc' };
+  }
+
   async findAll(options?: TaskRepositoryFindAllOptions): Promise<Task[]> {
-    const sortBy = options?.sortBy ?? 'created_at';
-    const sortOrder = options?.sortOrder ?? 'desc';
+    const { sortBy, sortOrder } = this.parseSortParam(options?.sort);
     const limit = options?.limit ?? 10;
 
     let query = this.db.selectFrom('task');
 
     if (options?.cursor) {
-      const { cursor } = options;
+      const cursor = this.decodeCursor(options.cursor);
 
-      if (sortBy === 'created_at' && cursor.created_at) {
+      if (sortBy === 'created_at' && 'created_at' in cursor) {
         const createdAt = cursor.created_at;
         query = query
           .where('created_at', sortOrder === 'desc' ? '<=' : '>=', createdAt)
@@ -54,7 +95,7 @@ export class TaskRepository {
               eb.and([eb('created_at', '=', createdAt), eb('id', sortOrder === 'desc' ? '<' : '>', cursor.id)]),
             ]),
           );
-      } else if (sortBy === 'due_at' && cursor.due_at) {
+      } else if (sortBy === 'due_at' && 'due_at' in cursor) {
         const dueAt = cursor.due_at;
         query = query
           .where('due_at', sortOrder === 'desc' ? '<=' : '>=', dueAt)
@@ -64,6 +105,8 @@ export class TaskRepository {
               eb.and([eb('due_at', '=', dueAt), eb('id', sortOrder === 'desc' ? '<' : '>', cursor.id)]),
             ]),
           );
+      } else {
+        throw new TaskRepository.DatabaseError('Unable to build query with the provided cursor');
       }
     }
 

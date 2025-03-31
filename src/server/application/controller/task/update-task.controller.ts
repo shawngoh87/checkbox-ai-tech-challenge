@@ -17,7 +17,7 @@ export class UpdateTaskController implements Controller {
       throw new ValidationError(result.error.message);
     }
 
-    return result.data as UpdateTaskRequest;
+    return result.data;
   }
 
   async execute(req: Request, res: Response<UpdateTaskResponse | ErrorResponse>): Promise<void> {

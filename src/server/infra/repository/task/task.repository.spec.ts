@@ -62,6 +62,29 @@ describe('TaskRepository', () => {
     taskRepository = new TaskRepository(db);
   });
 
+  describe('decodeCursor', () => {
+    it('should decode a created_at cursor', () => {
+      const cursor = Buffer.from(
+        JSON.stringify({ created_at: tasksFixture[0].created_at, id: tasksFixture[0].id }),
+      ).toString('base64');
+      const decodedCursor = taskRepository.decodeCursor(cursor);
+      expect(decodedCursor).toEqual({ created_at: tasksFixture[0].created_at, id: tasksFixture[0].id });
+    });
+
+    it('should decode a due_at cursor', () => {
+      const cursor = Buffer.from(JSON.stringify({ due_at: tasksFixture[0].due_at, id: tasksFixture[0].id })).toString(
+        'base64',
+      );
+      const decodedCursor = taskRepository.decodeCursor(cursor);
+      expect(decodedCursor).toEqual({ due_at: tasksFixture[0].due_at, id: tasksFixture[0].id });
+    });
+
+    it('should throw an InvalidCursorError if the cursor is invalid', () => {
+      const cursor = Buffer.from('invalid').toString('base64');
+      expect(() => taskRepository.decodeCursor(cursor)).toThrow(TaskRepository.InvalidCursorError);
+    });
+  });
+
   describe('findAll', () => {
     it('should return all tasks', async () => {
       const tasks = await taskRepository.findAll();
@@ -102,8 +125,7 @@ describe('TaskRepository', () => {
 
     it('should support cursor-based pagination with created_at sorting', async () => {
       const firstPage = await taskRepository.findAll({
-        sortBy: 'created_at',
-        sortOrder: 'desc',
+        sort: 'created_at:desc',
         limit: 2,
       });
       expect(firstPage.length).toBe(2);
@@ -111,13 +133,11 @@ describe('TaskRepository', () => {
       expect(firstPage[1].toPlainObject().id).toBe(tasksFixture[2].id);
 
       const secondPage = await taskRepository.findAll({
-        sortBy: 'created_at',
-        sortOrder: 'desc',
+        sort: 'created_at:desc',
         limit: 2,
-        cursor: {
-          created_at: tasksFixture[2].created_at,
-          id: tasksFixture[2].id,
-        },
+        cursor: Buffer.from(
+          JSON.stringify({ created_at: tasksFixture[2].created_at, id: tasksFixture[2].id }),
+        ).toString('base64'),
       });
       expect(secondPage.length).toBe(2);
       expect(secondPage[0].toPlainObject().id).toBe(tasksFixture[1].id);
@@ -126,8 +146,7 @@ describe('TaskRepository', () => {
 
     it('should support cursor-based pagination with due_at sorting', async () => {
       const firstPage = await taskRepository.findAll({
-        sortBy: 'due_at',
-        sortOrder: 'desc',
+        sort: 'due_at:desc',
         limit: 2,
       });
       expect(firstPage.length).toBe(2);
@@ -149,13 +168,11 @@ describe('TaskRepository', () => {
       });
 
       const secondPage = await taskRepository.findAll({
-        sortBy: 'due_at',
-        sortOrder: 'desc',
+        sort: 'due_at:desc',
         limit: 2,
-        cursor: {
-          due_at: tasksFixture[2].due_at,
-          id: tasksFixture[2].id,
-        },
+        cursor: Buffer.from(JSON.stringify({ due_at: tasksFixture[2].due_at, id: tasksFixture[2].id })).toString(
+          'base64',
+        ),
       });
       expect(secondPage.length).toBe(2);
       expect(secondPage[0].toPlainObject()).toEqual({
@@ -178,8 +195,7 @@ describe('TaskRepository', () => {
 
     it('should handle empty cursor pagination', async () => {
       const tasks = await taskRepository.findAll({
-        sortBy: 'created_at',
-        sortOrder: 'desc',
+        sort: 'created_at:desc',
         limit: 2,
       });
       expect(tasks.length).toBe(2);

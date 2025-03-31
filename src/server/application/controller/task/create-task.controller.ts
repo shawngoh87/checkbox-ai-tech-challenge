@@ -17,7 +17,7 @@ export class CreateTaskController implements Controller {
       throw new ValidationError(result.error.message);
     }
 
-    return result.data as CreateTaskRequest;
+    return result.data;
   }
 
   async execute(req: Request, res: Response<CreateTaskResponse | ErrorResponse>): Promise<void> {
