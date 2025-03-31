@@ -15,10 +15,12 @@ export class ListTasksUseCase {
 
   constructor(@inject(TaskRepository) private readonly taskRepository: TaskRepository) {}
 
-  async execute(params: ListTasksUseCaseParams): Promise<Task[]> {
+  async execute(params: ListTasksUseCaseParams): Promise<{ tasks: Task[]; nextCursor: string | undefined }> {
     try {
-      return this.taskRepository.findAll(params);
-    } catch {
+      const { tasks, nextCursor } = await this.taskRepository.findAll(params);
+      return { tasks, nextCursor };
+    } catch (error) {
+      console.error(error);
       throw new ListTasksUseCase.UnknownError('Failed to retrieve tasks');
     }
   }

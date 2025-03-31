@@ -28,27 +28,26 @@ describe('ListTasksUseCase', () => {
       }),
     ];
     mockRepository = {
-      findAll: vi.fn().mockResolvedValue(mockTasks),
+      findAll: vi.fn().mockResolvedValue({ tasks: mockTasks, nextCursor: 'somecursorstring' }),
     };
     listTasksUseCase = new ListTasksUseCase(mockRepository as unknown as TaskRepository);
   });
 
   it('should return tasks from the repository', async () => {
     const result = await listTasksUseCase.execute({
-      sortBy: 'created_at',
-      sortOrder: 'asc',
+      sort: 'created_at:asc',
       limit: 10,
       cursor: 'somecursorstring',
     });
 
     expect(mockRepository.findAll).toHaveBeenCalledWith({
-      sortBy: 'created_at',
-      sortOrder: 'asc',
+      sort: 'created_at:asc',
       limit: 10,
       cursor: 'somecursorstring',
     });
-    expect(result.length).toBe(mockTasks.length);
-    expect(result[0].toPlainObject()).toEqual(mockTasks[0].toPlainObject());
-    expect(result[1].toPlainObject()).toEqual(mockTasks[1].toPlainObject());
+    expect(result.tasks.length).toBe(mockTasks.length);
+    expect(result.tasks[0].toPlainObject()).toEqual(mockTasks[0].toPlainObject());
+    expect(result.tasks[1].toPlainObject()).toEqual(mockTasks[1].toPlainObject());
+    expect(result.nextCursor).toBe('somecursorstring');
   });
 });

@@ -87,9 +87,9 @@ describe('TaskRepository', () => {
 
   describe('findAll', () => {
     it('should return all tasks', async () => {
-      const tasks = await taskRepository.findAll();
-      expect(tasks.length).toEqual(4);
-      expect(tasks[0].toPlainObject()).toEqual({
+      const result = await taskRepository.findAll();
+      expect(result.tasks.length).toEqual(4);
+      expect(result.tasks[0].toPlainObject()).toEqual({
         id: tasksFixture[3].id,
         name: tasksFixture[3].name,
         description: tasksFixture[3].description,
@@ -97,7 +97,7 @@ describe('TaskRepository', () => {
         createdAt: tasksFixture[3].created_at,
         version: tasksFixture[3].version,
       });
-      expect(tasks[1].toPlainObject()).toEqual({
+      expect(result.tasks[1].toPlainObject()).toEqual({
         id: tasksFixture[2].id,
         name: tasksFixture[2].name,
         description: tasksFixture[2].description,
@@ -105,7 +105,7 @@ describe('TaskRepository', () => {
         createdAt: tasksFixture[2].created_at,
         version: tasksFixture[2].version,
       });
-      expect(tasks[2].toPlainObject()).toEqual({
+      expect(result.tasks[2].toPlainObject()).toEqual({
         id: tasksFixture[1].id,
         name: tasksFixture[1].name,
         description: tasksFixture[1].description,
@@ -113,7 +113,7 @@ describe('TaskRepository', () => {
         createdAt: tasksFixture[1].created_at,
         version: tasksFixture[1].version,
       });
-      expect(tasks[3].toPlainObject()).toEqual({
+      expect(result.tasks[3].toPlainObject()).toEqual({
         id: tasksFixture[0].id,
         name: tasksFixture[0].name,
         description: tasksFixture[0].description,
@@ -128,9 +128,9 @@ describe('TaskRepository', () => {
         sort: 'created_at:desc',
         limit: 2,
       });
-      expect(firstPage.length).toBe(2);
-      expect(firstPage[0].toPlainObject().id).toBe(tasksFixture[3].id);
-      expect(firstPage[1].toPlainObject().id).toBe(tasksFixture[2].id);
+      expect(firstPage.tasks.length).toBe(2);
+      expect(firstPage.tasks[0].toPlainObject().id).toBe(tasksFixture[3].id);
+      expect(firstPage.tasks[1].toPlainObject().id).toBe(tasksFixture[2].id);
 
       const secondPage = await taskRepository.findAll({
         sort: 'created_at:desc',
@@ -139,9 +139,9 @@ describe('TaskRepository', () => {
           JSON.stringify({ created_at: tasksFixture[2].created_at, id: tasksFixture[2].id }),
         ).toString('base64'),
       });
-      expect(secondPage.length).toBe(2);
-      expect(secondPage[0].toPlainObject().id).toBe(tasksFixture[1].id);
-      expect(secondPage[1].toPlainObject().id).toBe(tasksFixture[0].id);
+      expect(secondPage.tasks.length).toBe(2);
+      expect(secondPage.tasks[0].toPlainObject().id).toBe(tasksFixture[1].id);
+      expect(secondPage.tasks[1].toPlainObject().id).toBe(tasksFixture[0].id);
     });
 
     it('should support cursor-based pagination with due_at sorting', async () => {
@@ -149,8 +149,8 @@ describe('TaskRepository', () => {
         sort: 'due_at:desc',
         limit: 2,
       });
-      expect(firstPage.length).toBe(2);
-      expect(firstPage[0].toPlainObject()).toEqual({
+      expect(firstPage.tasks.length).toBe(2);
+      expect(firstPage.tasks[0].toPlainObject()).toEqual({
         id: tasksFixture[3].id,
         name: tasksFixture[3].name,
         description: tasksFixture[3].description,
@@ -158,7 +158,7 @@ describe('TaskRepository', () => {
         createdAt: tasksFixture[3].created_at,
         version: tasksFixture[3].version,
       });
-      expect(firstPage[1].toPlainObject()).toEqual({
+      expect(firstPage.tasks[1].toPlainObject()).toEqual({
         id: tasksFixture[2].id,
         name: tasksFixture[2].name,
         description: tasksFixture[2].description,
@@ -174,8 +174,8 @@ describe('TaskRepository', () => {
           'base64',
         ),
       });
-      expect(secondPage.length).toBe(2);
-      expect(secondPage[0].toPlainObject()).toEqual({
+      expect(secondPage.tasks.length).toBe(2);
+      expect(secondPage.tasks[0].toPlainObject()).toEqual({
         id: tasksFixture[1].id,
         name: tasksFixture[1].name,
         description: tasksFixture[1].description,
@@ -183,7 +183,7 @@ describe('TaskRepository', () => {
         createdAt: tasksFixture[1].created_at,
         version: tasksFixture[1].version,
       });
-      expect(secondPage[1].toPlainObject()).toEqual({
+      expect(secondPage.tasks[1].toPlainObject()).toEqual({
         id: tasksFixture[0].id,
         name: tasksFixture[0].name,
         description: tasksFixture[0].description,
@@ -198,7 +198,7 @@ describe('TaskRepository', () => {
         sort: 'created_at:desc',
         limit: 2,
       });
-      expect(tasks.length).toBe(2);
+      expect(tasks.tasks.length).toBe(2);
     });
   });
 

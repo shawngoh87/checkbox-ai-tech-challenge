@@ -35,6 +35,7 @@ export type ListTasksResponse = {
     createdAt: string;
     version: number;
   }[];
+  nextCursor?: string;
 };
 
 export type CreateTaskResponse = {

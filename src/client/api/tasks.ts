@@ -14,10 +14,25 @@ export interface UpdateTaskPayload {
   version: number;
 }
 
+export interface ListTasksParams {
+  sort?: string;
+  limit?: number;
+  cursor?: string;
+}
+
 const API_BASE_URL = '/api/v1/tasks';
 
-export async function listTasks(): Promise<Task[]> {
-  const response = await fetch(API_BASE_URL);
+export async function listTasks(params?: ListTasksParams): Promise<{
+  tasks: Task[];
+  nextCursor: string;
+}> {
+  const searchParams = new URLSearchParams();
+  if (params?.sort) searchParams.append('sort', params.sort);
+  if (params?.limit) searchParams.append('limit', params.limit.toString());
+  if (params?.cursor) searchParams.append('cursor', params.cursor);
+
+  const url = `${API_BASE_URL}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+  const response = await fetch(url);
 
   if (!response.ok) {
     throw new Error('Failed to fetch tasks');
@@ -25,10 +40,13 @@ export async function listTasks(): Promise<Task[]> {
 
   const body = (await response.json()) as ListTasksResponse;
 
-  return body.tasks.map((task) => ({
-    ...task,
-    status: calculateTaskStatus(task.dueAt),
-  }));
+  return {
+    tasks: body.tasks.map((task) => ({
+      ...task,
+      status: calculateTaskStatus(task.dueAt),
+    })),
+    nextCursor: body.nextCursor,
+  };
 }
 
 export async function createTask(taskData: CreateTaskPayload): Promise<Task> {

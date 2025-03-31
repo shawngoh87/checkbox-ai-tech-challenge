@@ -1,15 +1,20 @@
 import { Task, TaskStatus } from '../types/task';
-import { Text, Badge, Loader, Center } from '@mantine/core';
+import { Text, Badge, Paper, Group, Select } from '@mantine/core';
 import { DataTable } from 'mantine-datatable';
 import { format } from 'date-fns';
 import { useState } from 'react';
 import { EditTaskModal } from './EditTaskModal';
 
 interface TaskListProps {
-  tasks: Task[];
+  records: Task[];
   onUpdateTask: (id: string, data: { name?: string; description?: string; dueAt?: string; version: number }) => void;
-  isLoading: boolean;
+  loading: boolean;
   isUpdating?: boolean;
+  hasMore: boolean;
+  sortStatus: { columnAccessor: string; direction: 'asc' | 'desc' };
+  onSortStatusChange: (status: { columnAccessor: string; direction: 'asc' | 'desc' }) => void;
+  onLoadMore: () => void;
+  scrollViewportRef: React.RefObject<HTMLDivElement>;
 }
 
 const getStatusColor = (status: TaskStatus) => {
@@ -23,17 +28,32 @@ const getStatusColor = (status: TaskStatus) => {
   }
 };
 
-export function TaskList({ tasks, onUpdateTask, isLoading, isUpdating }: TaskListProps) {
+const SORT_OPTIONS = [
+  { value: 'created_at:desc', label: 'Created date, descending' },
+  { value: 'created_at:asc', label: 'Created date, ascending' },
+  { value: 'due_at:desc', label: 'Due date, descending' },
+  { value: 'due_at:asc', label: 'Due date, ascending' },
+];
+
+export function TaskList({
+  records,
+  onUpdateTask,
+  loading,
+  isUpdating,
+  hasMore,
+  sortStatus,
+  onSortStatusChange,
+  onLoadMore,
+  scrollViewportRef,
+}: TaskListProps) {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  if (isLoading) {
-    return (
-      <Center h={200} data-testid="task-list-loading">
-        <Loader size="lg" />
-      </Center>
-    );
-  }
+  const handleSortChange = (value: string | null) => {
+    if (!value) return;
+    const [columnAccessor, direction] = value.split(':') as [string, 'asc' | 'desc'];
+    onSortStatusChange({ columnAccessor, direction });
+  };
 
   const handleRowClick = (record: Task) => {
     setSelectedTask(record);
@@ -42,13 +62,24 @@ export function TaskList({ tasks, onUpdateTask, isLoading, isUpdating }: TaskLis
 
   return (
     <div data-testid="task-list">
+      <Group mb="md" justify="flex-end">
+        <Select
+          w={300}
+          label="Sort by"
+          placeholder="Select sort option"
+          data={SORT_OPTIONS}
+          value={`${sortStatus.columnAccessor}:${sortStatus.direction}`}
+          onChange={handleSortChange}
+        />
+      </Group>
+
       <DataTable
         withTableBorder
         borderRadius="sm"
         withColumnBorders
         striped
         highlightOnHover
-        records={tasks}
+        records={records}
         columns={[
           {
             accessor: 'name',
@@ -76,34 +107,46 @@ export function TaskList({ tasks, onUpdateTask, isLoading, isUpdating }: TaskLis
             },
           },
           {
-            accessor: 'createdAt',
-            title: 'Created',
-            width: '17.5%',
-            render: ({ createdAt }) => (
-              <Text data-testid="task-created-at" size="sm">
-                {format(new Date(createdAt), 'PPP')}
-              </Text>
-            ),
-          },
-          {
-            accessor: 'dueAt',
+            accessor: 'due_at',
             title: 'Due Date',
             width: '17.5%',
             render: ({ dueAt }) => (
               <Text data-testid="task-due-at" size="sm">
-                {format(new Date(dueAt), 'PPP')}
+                {format(new Date(dueAt), 'dd MMM yyyy')}
+              </Text>
+            ),
+          },
+          {
+            accessor: 'created_at',
+            title: 'Created',
+            width: '17.5%',
+            render: ({ createdAt }) => (
+              <Text data-testid="task-created-at" size="sm">
+                {format(new Date(createdAt), 'dd MMM yyyy')}
               </Text>
             ),
           },
         ]}
         noRecordsText="No tasks found. Create a new task to get started."
         minHeight={200}
-        sortStatus={{ columnAccessor: 'dueAt', direction: 'asc' }}
+        height={400}
+        fetching={loading}
+        onScrollToBottom={onLoadMore}
+        scrollViewportRef={scrollViewportRef}
         defaultColumnProps={{
-          sortable: true,
+          sortable: false,
         }}
         onRowClick={({ record }) => handleRowClick(record)}
       />
+
+      <Paper p="md" mt="sm" withBorder>
+        <Group justify="space-between">
+          <Text size="sm">
+            Showing {records.length} records
+            {hasMore && ', scroll to bottom to load more'}
+          </Text>
+        </Group>
+      </Paper>
 
       <EditTaskModal
         task={selectedTask}

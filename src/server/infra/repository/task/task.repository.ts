@@ -67,6 +67,20 @@ export class TaskRepository {
     }
   }
 
+  encodeCursor(cursor?: { created_at?: Date; due_at?: Date; id: string }) {
+    if (!cursor) {
+      return undefined;
+    }
+
+    return Buffer.from(
+      JSON.stringify({
+        created_at: cursor.created_at?.toISOString(),
+        due_at: cursor.due_at?.toISOString(),
+        id: cursor.id,
+      }),
+    ).toString('base64');
+  }
+
   parseSortParam(sort: string | undefined) {
     if (!sort) {
       return { sortBy: 'created_at' as const, sortOrder: 'desc' as const };
@@ -76,7 +90,7 @@ export class TaskRepository {
     return { sortBy: sortBy as 'created_at' | 'due_at', sortOrder: sortOrder as 'asc' | 'desc' };
   }
 
-  async findAll(options?: TaskRepositoryFindAllOptions): Promise<Task[]> {
+  async findAll(options?: TaskRepositoryFindAllOptions): Promise<{ tasks: Task[]; nextCursor: string | undefined }> {
     const { sortBy, sortOrder } = this.parseSortParam(options?.sort);
     const limit = options?.limit ?? 10;
 
@@ -112,17 +126,25 @@ export class TaskRepository {
 
     const tasks = await query.orderBy(sortBy, sortOrder).orderBy('id', sortOrder).limit(limit).selectAll().execute();
 
-    return tasks.map(
-      (task) =>
-        new Task({
+    return {
+      tasks: tasks.map((task) => {
+        return new Task({
           id: task.id,
           name: task.name,
           description: task.description,
           dueAt: task.due_at,
           createdAt: task.created_at,
           version: task.version,
-        }),
-    );
+        });
+      }),
+      nextCursor:
+        tasks.length > 0
+          ? this.encodeCursor({
+              [sortBy]: tasks[tasks.length - 1][sortBy],
+              id: tasks[tasks.length - 1].id,
+            })
+          : undefined,
+    };
   }
 
   async create({ task }: { task: Task }): Promise<Task> {

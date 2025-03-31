@@ -32,12 +32,12 @@ export class ListTasksController implements Controller {
     try {
       const validatedQuery = this.validate(req.query);
 
-      const tasks = await this.listTasksUseCase.execute({
+      const result = await this.listTasksUseCase.execute({
         sort: validatedQuery.sort,
         limit: validatedQuery.limit,
         cursor: validatedQuery.cursor,
       });
-      const tasksJSON = tasks.map((task) => {
+      const tasksJSON = result.tasks.map((task) => {
         const plain = task.toPlainObject();
         return {
           id: plain.id,
@@ -51,8 +51,10 @@ export class ListTasksController implements Controller {
 
       res.status(HTTP_STATUS.OK).json({
         tasks: tasksJSON,
+        nextCursor: result.nextCursor,
       });
     } catch (error) {
+      console.log('ERROR', error);
       if (error instanceof ValidationError) {
         res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).json({ error: error.message });
         return;

@@ -32,7 +32,10 @@ describe('ListTasksController', () => {
       execute: vi.fn().mockResolvedValue([new Task(task1Props), new Task(task2Props)]),
     };
     listTasksController = new ListTasksController(mockListTasksUseCase as unknown as ListTasksUseCase);
-    mockListTasksUseCase.execute.mockResolvedValue([new Task(task1Props), new Task(task2Props)]);
+    mockListTasksUseCase.execute.mockResolvedValue({
+      tasks: [new Task(task1Props), new Task(task2Props)],
+      nextCursor: '1',
+    });
     mockRequest = {};
     mockResponse = {
       status: vi.fn().mockReturnThis(),
@@ -70,6 +73,7 @@ describe('ListTasksController', () => {
             version: 0,
           },
         ],
+        nextCursor: '1',
       });
     });
 
