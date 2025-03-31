@@ -8,7 +8,7 @@ import { Controller } from '../controller.interface.js';
 
 @injectable()
 export class UpdateTaskController implements Controller {
-  constructor(@inject(UpdateTaskUseCase) private updateTaskUseCase: UpdateTaskUseCase) {}
+  constructor(@inject(UpdateTaskUseCase) private readonly updateTaskUseCase: UpdateTaskUseCase) {}
 
   validate(body: unknown) {
     const result = UpdateTaskRequest.safeParse(body);
@@ -20,16 +20,12 @@ export class UpdateTaskController implements Controller {
     return result.data as UpdateTaskRequest;
   }
 
-  async execute(
-    req: Request<{ id: string }, UpdateTaskResponse | ErrorResponse, UpdateTaskRequest>,
-    res: Response<UpdateTaskResponse | ErrorResponse>,
-  ): Promise<void> {
+  async execute(req: Request, res: Response<UpdateTaskResponse | ErrorResponse>): Promise<void> {
     try {
-      const { id } = req.params;
       const validatedBody = this.validate(req.body);
 
       const task = await this.updateTaskUseCase.execute({
-        id,
+        id: validatedBody.id,
         name: validatedBody.name,
         description: validatedBody.description,
         dueAt: new Date(validatedBody.dueAt),
@@ -38,12 +34,14 @@ export class UpdateTaskController implements Controller {
 
       const taskJSON = task.toPlainObject();
       res.status(HTTP_STATUS.OK).json({
-        id: taskJSON.id,
-        name: taskJSON.name,
-        description: taskJSON.description,
-        dueAt: taskJSON.dueAt.toISOString(),
-        createdAt: taskJSON.createdAt.toISOString(),
-        version: taskJSON.version,
+        task: {
+          id: taskJSON.id,
+          name: taskJSON.name,
+          description: taskJSON.description,
+          dueAt: taskJSON.dueAt.toISOString(),
+          createdAt: taskJSON.createdAt.toISOString(),
+          version: taskJSON.version,
+        },
       });
     } catch (error) {
       if (error instanceof ValidationError) {
