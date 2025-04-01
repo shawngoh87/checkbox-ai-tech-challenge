@@ -5,6 +5,7 @@ import { HTTP_STATUS } from '../../http-status.js';
 import { inject, injectable } from 'inversify';
 import { Controller } from '../controller.interface.js';
 import { ValidationError } from '../../error.js';
+import { resolveError } from '../resolve-error.js';
 
 @injectable()
 export class ListTasksController implements Controller {
@@ -22,7 +23,7 @@ export class ListTasksController implements Controller {
     const result = ListTasksRequestQuery.safeParse(query);
 
     if (!result.success) {
-      throw new ValidationError(result.error.message);
+      throw new ValidationError(result.error);
     }
 
     return result.data;
@@ -54,17 +55,8 @@ export class ListTasksController implements Controller {
         nextCursor: result.nextCursor,
       });
     } catch (error) {
-      if (error instanceof ValidationError) {
-        res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).json({ error: error.message });
-        return;
-      }
-
-      if (error instanceof ListTasksUseCase.UnknownError) {
-        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Failed to retrieve tasks' });
-        return;
-      }
-
-      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Unknown error' });
+      const { status, json } = resolveError(error);
+      res.status(status).json(json);
     }
   }
 }

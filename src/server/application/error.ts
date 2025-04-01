@@ -1,7 +1,16 @@
+import { ZodError } from 'zod';
+
 export class ValidationError extends Error {
-  constructor(message: string) {
+  issues: { path: (string | number)[]; message: string }[];
+
+  constructor(error: ZodError) {
+    const message = error.errors.map((e) => e.message).join(', ');
     super(message);
     this.name = 'ValidationError';
+    this.issues = error.errors.map((e) => ({
+      path: e.path,
+      message: e.message,
+    }));
   }
 }
 

@@ -84,7 +84,7 @@ describe('ListTasksController', () => {
       await listTasksController.execute(mockRequest as Request, mockResponse as Response);
 
       expect(mockResponse.status).toHaveBeenCalledWith(500);
-      expect(mockResponse.json).toHaveBeenCalledWith({ error: 'Unknown error' });
+      expect(mockResponse.json).toHaveBeenCalledWith({ error: 'Internal server error' });
     });
 
     describe('validation', () => {

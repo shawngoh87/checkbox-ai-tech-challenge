@@ -24,7 +24,13 @@ describe('CreateTaskController', () => {
       ),
     };
     createTaskController = new CreateTaskController(mockCreateTaskUseCase as unknown as CreateTaskUseCase);
-    mockRequest = {};
+    mockRequest = {
+      body: {
+        name: 'Test Task',
+        description: 'Test Description',
+        dueAt: '2025-12-31T00:00:00.000Z',
+      },
+    };
     mockResponse = {
       status: vi.fn().mockReturnThis(),
       json: vi.fn(),
@@ -33,12 +39,6 @@ describe('CreateTaskController', () => {
 
   describe('execute', () => {
     it('should return 200 and task on success', async () => {
-      mockRequest.body = {
-        name: 'Test Task',
-        description: 'Test Description',
-        dueAt: '2025-12-31T00:00:00.000Z',
-      };
-
       await createTaskController.execute(mockRequest as Request, mockResponse as Response);
 
       expect(mockCreateTaskUseCase.execute).toHaveBeenCalled();
@@ -53,6 +53,16 @@ describe('CreateTaskController', () => {
           version: 0,
         },
       });
+    });
+
+    it('should return 500 when the use case throws an error', async () => {
+      const error = new Error('Some unknown error');
+      (mockCreateTaskUseCase.execute as ReturnType<typeof vi.fn>).mockRejectedValue(error);
+
+      await createTaskController.execute(mockRequest as Request, mockResponse as Response);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(500);
+      expect(mockResponse.json).toHaveBeenCalledWith({ error: 'Internal server error' });
     });
 
     describe('validation', () => {

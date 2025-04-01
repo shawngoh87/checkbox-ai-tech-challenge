@@ -25,7 +25,15 @@ describe('UpdateTaskController', () => {
       ),
     };
     updateTaskController = new UpdateTaskController(mockUpdateTaskUseCase as unknown as UpdateTaskUseCase);
-    mockRequest = {};
+    mockRequest = {
+      body: {
+        id: 'a'.repeat(36),
+        name: 'Updated Name',
+        description: 'Updated Description',
+        dueAt: '2025-12-31T00:00:00.000Z',
+        version: 0,
+      },
+    };
     mockResponse = {
       status: vi.fn().mockReturnThis(),
       json: vi.fn(),
@@ -34,14 +42,6 @@ describe('UpdateTaskController', () => {
 
   describe('execute', () => {
     it('should return 200 and task on success', async () => {
-      mockRequest.body = {
-        id: 'a'.repeat(36),
-        name: 'Updated Name',
-        description: 'Updated Description',
-        dueAt: '2025-12-31T00:00:00.000Z',
-        version: 0,
-      };
-
       await updateTaskController.execute(mockRequest as Request, mockResponse as Response);
 
       expect(mockUpdateTaskUseCase.execute).toHaveBeenCalledWith({
@@ -62,6 +62,16 @@ describe('UpdateTaskController', () => {
           version: 0,
         },
       });
+    });
+
+    it('should return 500 when the use case throws an error', async () => {
+      const error = new Error('Some unknown error');
+      (mockUpdateTaskUseCase.execute as ReturnType<typeof vi.fn>).mockRejectedValue(error);
+
+      await updateTaskController.execute(mockRequest as Request, mockResponse as Response);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(500);
+      expect(mockResponse.json).toHaveBeenCalledWith({ error: 'Internal server error' });
     });
 
     describe('validation', () => {

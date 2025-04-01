@@ -61,5 +61,5 @@ export type UpdateTaskResponse = {
 };
 
 export type ErrorResponse = {
-  error: string;
+  error: unknown;
 };

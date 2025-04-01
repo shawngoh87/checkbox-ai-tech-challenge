@@ -5,6 +5,7 @@ import { HTTP_STATUS } from '../../http-status.js';
 import { ValidationError } from '../../error.js';
 import { inject, injectable } from 'inversify';
 import { Controller } from '../controller.interface.js';
+import { resolveError } from '../resolve-error.js';
 
 @injectable()
 export class UpdateTaskController implements Controller {
@@ -14,7 +15,7 @@ export class UpdateTaskController implements Controller {
     const result = UpdateTaskRequest.safeParse(body);
 
     if (!result.success) {
-      throw new ValidationError(result.error.message);
+      throw new ValidationError(result.error);
     }
 
     return result.data;
@@ -44,21 +45,8 @@ export class UpdateTaskController implements Controller {
         },
       });
     } catch (error) {
-      if (error instanceof ValidationError) {
-        res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).json({ error: error.message });
-        return;
-      }
-
-      if (error instanceof UpdateTaskUseCase.UnknownError) {
-        res.status(HTTP_STATUS.NOT_FOUND).json({
-          error: error.message,
-        });
-        return;
-      }
-
-      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-        error: 'Unknown error',
-      });
+      const { status, json } = resolveError(error);
+      res.status(status).json(json);
     }
   }
 }
