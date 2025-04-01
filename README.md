@@ -21,16 +21,22 @@ cp .env.example .env
 
 ```bash
 npm run docker:dev:up
-npm run migrate:up
+npm run migrate:up  
 npm run seed
 npm run test:watch
-npm run dev         # Both client/server are served together
+npm run dev             # Both client/server are served together
 ```
 
 ### Testing
 
 ```bash
 npm run test
+```
+
+### Production
+
+```bash
+docker compose up -d
 ```
 
 ## Design decisions
@@ -65,9 +71,9 @@ I used optimistic concurrency control to prevent unexpected overwrites in task u
 
 This is implemented as a simple `version` in tasks. `version` is incremented everytime the task is updated. The client has to send the current version along with the update payload.
 
-If concurrent updates become more frequent, we may have to use a more sophisticated conflict-resolution method e.g. conflict-free replicated datatypes (CRDTs).
+If concurrent updates become more frequent, we may have to use a more sophisticated conflict resolution method e.g. conflict-free replicated datatypes (CRDTs).
 
-Note: Using number for `version` will allow client to manipulate updates. This should be changed to a random value e.g. UUIDv4.
+Note: Using number for `version` will allow client to manipulate updates. This should be changed to a random value e.g. UUIDv4 in the future.
 
 ## Folder structure
 
@@ -128,17 +134,18 @@ We use cursor-based pagination on the database using sort keys `created_at` and 
 
 While `created_at` is immutable, `due_at` can be updated, which may cause missing/duplicated record in a paginated list. 
 
-We can tackle this by (Not implemented):
+We can tackle this by:
 1. snapshotting the list (e.g. `updated_at < time_of_search`), eliminating duplicated records entirely. 
 2. send a realtime notification on client whenever a task is updated - notifying user that the current list is stale and please refresh.
 
 ## Further improvements
 
-- Use a datatable library (e.g. TanStack table) that supports virtualization (mantine datatable does not support virtualization at the moment, see [here](https://github.com/icflorescu/mantine-datatable/pull/690))
+- Use a datatable library (e.g. TanStack table) that supports virtualization (Mantine datatable does not support virtualization at the moment, see [here](https://github.com/icflorescu/mantine-datatable/pull/690))
 - Load config based on NODE_ENV e.g. `.env.test` for test environment, so that we dont have to use different set of envs.
-- Add index for due_at and created_at for sorting
+- Add database index for due_at and created_at for sorting
 - Refactor query builder code in TaskRepository
 - Handle (the inevitable) duplicate/missing records in infinite scrolling list.
-- Routing: handle 404s on backend/frontend properly.
-- Use a different data type for update task OCC field.
-- Add end-to-end tests for backend and frontend
+- Routing: handle 404s on backend and frontend properly.
+- Use randomized value for task versioning.
+- Add end-to-end tests for backend and frontend.
+- Add unit tests for frontend.
