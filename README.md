@@ -6,7 +6,7 @@
 
 1. Docker
 2. `nvm`
-3. `node` 18
+3. Node.js 18
 4. `npm`
 
 ### Initial setup
@@ -31,11 +31,45 @@ npm run dev  # Both client/server are served together
 npm run test
 ```
 
-## Key design decisions
+## Design decisions
 
-- Folder structure
-- Extremely likely to have Kanban boards, so we implement the initial list as an infinitely-loaded list of tasks. Changing to Kanban board is a few `WHERE` clauses and database index away.
-- Update task uses OCC - move to mergeable data structures if we have huge multiplayer needs 
+### Infinite scrolling by default
+
+This product shares many similarities with Trello, Linear etc. Kanban-style board is a staple feature in this kind of software. Kanban columns are infinite scrolling by default.
+
+The product is designed towards making Kanban possible/easier to develop.
+
+### Concurrent task updates
+
+I used optimistic concurrency control to prevent unexpected overwrites in task updates, assuming:
+1. Concurrent updates are not too frequent.
+2. Partial updates are not allowed.
+
+This is implemented as a simple `version` in tasks. `version` is incremented everytime the task is updated. The client has to send the current version along with the update payload.
+
+If concurrent updates become more frequent, we may have to use a more sophisticated conflict-resolution method e.g. conflict-free replicated datatypes (CRDTs).
+
+Note: Using number for `version` will allow client to manipulate updates. This should be changed to a random value e.g. UUIDv4.
+
+## Folder structure
+
+This repository is based on [this template](https://github.com/Checkbox-Technology-Pty-Ltd/tech-challenge-template)
+
+```bash
+src
+├── client
+│   ├── api           # API client
+│   ├── components    # React components
+│   ├── hooks         # State hooks
+│   └── pages         # Top-level components
+├── common
+│   └── types.ts      # Client/server shared types
+└── server
+    ├── application   # Routes, controllers, use cases
+    ├── domain        # Business logic
+    ├── infra         # Databases, repositories, migrations...
+    └── server.ts     # Server-side setup, IoC container
+```
 
 ## Approaching sort by created date and due date
 
@@ -66,7 +100,7 @@ After building the first version, we should measure search usage and evolve acco
 
 > Not implemented
 
-Since we have decided to build infinite scrolling, we need to implement virtualized list on client to reduce the amount of DOM elements present in the page.
+We need to implement virtualized list on client to reduce the amount of DOM elements present in the page.
 
 ### Server
 
@@ -87,3 +121,6 @@ We can tackle this by (Not implemented):
 - Add index for due_at and created_at for sorting
 - Refactor query builder code in TaskRepository
 - Handle (the inevitable) duplicate/missing records in infinite scrolling list.
+- Routing: handle 404s on backend/frontend properly.
+- Use a different data type for update task OCC field.
+- Add end-to-end tests for backend and frontend
