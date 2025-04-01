@@ -5,7 +5,13 @@ import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
 import 'mantine-datatable/styles.layer.css';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 3,
+    },
+  },
+});
 
 export function App() {
   return (

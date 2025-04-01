@@ -24,7 +24,7 @@ const API_BASE_URL = '/api/v1/tasks';
 
 export async function listTasks(params?: ListTasksParams): Promise<{
   tasks: Task[];
-  nextCursor: string;
+  nextCursor: string | undefined;
 }> {
   const searchParams = new URLSearchParams();
   if (params?.sort) searchParams.append('sort', params.sort);
