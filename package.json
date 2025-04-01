@@ -12,11 +12,15 @@
     "build": "vite build",
     "lint": "eslint",
     "format": "eslint --fix",
-    "test": "NODE_OPTIONS=\"--import tsx\" vitest run",
-    "test:watch": "NODE_OPTIONS=\"--import tsx\" vitest --bail 1",
+    "test": "docker compose -f docker-compose.test.yaml up -d && NODE_OPTIONS=\"--import tsx\" vitest run",
+    "test:watch": "docker compose -f docker-compose.test.yaml up -d && NODE_OPTIONS=\"--import tsx\" vitest --bail 1",
     "migrate:up": "npx kysely migrate latest",
     "migrate:down": "npx kysely migrate down",
-    "seed": "npx kysely seed run"
+    "seed": "npx kysely seed run",
+    "docker:test:up": "docker compose -f docker-compose.test.yaml up -d",
+    "docker:test:down": "docker compose -f docker-compose.test.yaml down",
+    "docker:dev:up": "docker compose -f docker-compose.dev.yaml up -d",
+    "docker:dev:down": "docker compose -f docker-compose.dev.yaml down"
   },
   "dependencies": {
     "@mantine/core": "^7.17.2",

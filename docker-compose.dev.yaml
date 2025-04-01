@@ -1,0 +1,18 @@
+version: '3.9'
+
+services:
+  database:
+    image: postgres
+    container_name: checkbox-postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - ${DB_POSTGRES_PORT}:${DB_POSTGRES_PORT}
+    environment:
+      - POSTGRES_DB=${DB_POSTGRES_DB}
+      - POSTGRES_USER=${DB_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${DB_POSTGRES_PASSWORD}
+
+volumes:
+  pgdata:

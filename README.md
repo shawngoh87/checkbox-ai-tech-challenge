@@ -1,97 +1,89 @@
-# Checkbox Tech Challenge <!-- omit in toc -->
+# Checkbox Tech Challenge
 
-Project template for Checkbox's Tech Challenge, a React client and Express/Node server bootstrapped with [Vite](https://vitejs.dev/) and [Vite-Express](https://github.com/szymmis/vite-express).
+## Setting up
 
-## Table of contents <!-- omit in toc -->
+### Prerequisites
 
-- [Project scope](#project-scope)
-  - [Your task](#your-task)
-  - [Out of scope](#out-of-scope)
-  - [What we’ll be looking for](#what-well-be-looking-for)
-- [Getting started](#getting-started)
-  - [Docker Compose](#docker-compose)
-    - [Prerequisites](#prerequisites)
-    - [Installing and running](#installing-and-running)
-- [Database configuration](#database-configuration)
+1. Docker
+2. `nvm`
+3. `node` 18
+4. `npm`
 
-## Project scope
+### Initial setup
 
-You’ve been assigned to a team working on building out a new task
-management software. Over the course of a few days, many customer
-interviews & user mapping flows, you and your product manager arrive
-together at the following set of user stories.
+```bash
+nvm use
+npm install
+cp .env.example .env
+```
 
-- User should be able to create a new task, including the following
-  fields
-    - Name
-    - Description
-    - Due date
+### Developing
 
-- User should be able to view all tasks created in a list view, showing
-  all the following details
-    - Name
-    - Description
-    - Due date
-    - Create date
-    - Status
-        - Not urgent
-        - Due soon (Due date is within 7 days)
-        - Overdue
-- User should be able to edit task name, description and due date
-- User should be able to search based on task name
+```bash
+npm run docker:dev:up
+npm run test:watch
+npm run dev  # Both client/server are served together
+```
 
-### Your task
+### Testing
 
-- Create a working solution that showcases the above user
-  stories using the project template provided in this repository
-- Please articulate and explain any design decisions you made in your
-  readme.
-- Feel free to use any libraries to help you
-- Don’t worry too much about styling it perfectly!
-- List any further improvements to your code that you would’ve made if
-  you had time
+```bash
+npm run test
+```
 
-### Out of scope
+## Key design decisions
 
-- Do not implement any authentication or authorisation
-- Do not implement any user management.
+- Folder structure
+- Extremely likely to have Kanban boards, so we implement the initial list as an infinitely-loaded list of tasks. Changing to Kanban board is a few `WHERE` clauses and database index away.
+- Update task uses OCC - move to mergeable data structures if we have huge multiplayer needs 
 
-### What we’ll be looking for
+## Approaching sort by created date and due date
 
-- Clean, manageable & well structured code
-- Production quality code
-- Git maturity. Please show your full git commit history (rather than
-  pushing everything up in one commit).
-- Understanding & effective implementation of fundamental software development principles
-- Demonstrated understanding of other tasks you would do if you had time
-  & how you would implement them
+> Implemented
 
-## Getting started
+Allow clients to send predefined sort configurations e.g. `created_at:asc` and `due_at:desc`. 
 
-This project must work with the [Docker Compose](#docker-compose) configuration we provided.  
+This encapsulates sorting functionality, prevents invalid configurations, and is extensible for arbitrary new sort types in the future.
 
-### Docker Compose
+Our repository then query with `ORDER BY <field>` in repository. 
 
-#### Prerequisites
+## Approaching search by task name
 
-- [Node](https://nodejs.org/en/) _(see [`.nvmrc`](.nvmrc) for version number)_
-- [Docker Desktop](https://docs.docker.com/desktop/): more convenient as it bundles Docker Compose as well
+> Not implemented
 
-#### Installing and running
+I would implement the first version with Postgres' built-in full-text search + trigram index, with the following assumptions:
 
-1. Duplicate `.env.sample` in the root folder, name it `.env` and configure all the empty `DB_POSTGRES_*` variables.
+1. We have insufficient operational experience on other, more powerful search engine.
+2. We are unsure how frequently search is going to be used.
 
-2. Run `docker compose up` on a terminal of your choice.
+Write performance will be impacted by the new search indexes. If this becomes a problem, we can further offload search queries and indexes to read replicas only. The trade-off is that now newly-created tasks will take time to show up in search results. This can buy us some time.
 
-3. Wait for a console message saying the app is ready, open the browser of your preference and navigate to http://localhost:3000.
+After building the first version, we should measure search usage and evolve accordingly, potentially moving to a dedicated search engine e.g. ElasticSearch. We will publish domain events/change data capture, process it, and update the search engine.
 
-4. Run `docker compose down` on a separate terminal whenever you want to stop the services.
+## Handling large amount of tasks
 
-5. If you change your environment variables at any point you will need to rebuild the docker containers 
-   1. run `docker compose down -v` to remove all existing docker container volumes 
-   2. run `docker compose up`
+### Client
 
-## Database configuration
+> Not implemented
 
-The challenge assumes you will be storing and retrieving records from a database. The project contains an initial configuration for [PostgreSQL](https://www.postgresql.org/) to speed things up but you might pick your system of choice if you prefer. Either way, as mentioned before, the application should work as expected when running Docker Compose.
-In case you are not using an ORM to manage and connect to the database and are sticking to the project's setup, you should populate the `init.sql` schema creation script at the root. It is run automatically as part of `docker compose up` the first time it gets executed to create your table(s).
+Since we have decided to build infinite scrolling, we need to implement virtualized list on client to reduce the amount of DOM elements present in the page.
+
+### Server
+
+> Partially implemented
+
+We use cursor-based pagination on the database using sort keys `created_at` and `due_at`, along with `id` as the tiebreaker. See `findAll()` in [TaskRepository](src/server/infra/repository/task/task.repository.ts).
+
+While `created_at` is immutable, `due_at` can be updated, which may cause missing/duplicated record in a paginated list. 
+
+We can tackle this by (Not implemented):
+1. snapshotting the list (e.g. `updated_at < time_of_search`), eliminating duplicated records entirely. 
+2. send a realtime notification on client whenever a task is updated - notifying user that the current list is stale and please refresh.
+
+## Further improvements
+
+- Use a datatable library (e.g. TanStack table) that supports virtualization (mantine datatable does not support virtualization at the moment, see [here](https://github.com/icflorescu/mantine-datatable/pull/690))
+- Load config based on NODE_ENV e.g. `.env.test` for test environment, so that we dont have to use different set of envs.
+- Add index for due_at and created_at for sorting
+- Refactor query builder code in TaskRepository
+- Handle (the inevitable) duplicate/missing records in infinite scrolling list.
