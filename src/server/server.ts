@@ -12,9 +12,13 @@ import { ListTasksController } from './application/controller/task/list-tasks.co
 import { UpdateTaskController } from './application/controller/task/update-task.controller.js';
 import { registerDatabase } from './infra/database/database.provider.js';
 import { registerRoutes } from './application/route.provider.js';
+import { routes } from './routes.js';
 
 export const bootstrap = () => {
+  logger.info('Initializing server...');
+
   const container: Container = new Container();
+
   registerDatabase(container);
 
   // Bind all services
@@ -33,27 +37,9 @@ export const bootstrap = () => {
   app.use(express.json());
   app.use(cors());
 
-  logger.info('Initializing server...');
+  const taskRouter = registerRoutes(container, routes);
 
-  const router = registerRoutes(container, [
-    {
-      method: 'get',
-      route: '/',
-      controller: ListTasksController,
-    },
-    {
-      method: 'post',
-      route: '/',
-      controller: CreateTaskController,
-    },
-    {
-      method: 'put',
-      route: '/:id',
-      controller: UpdateTaskController,
-    },
-  ]);
-
-  app.use('/api/v1/tasks', router);
+  app.use('/api/v1/tasks', taskRouter);
 
   return app;
 };
