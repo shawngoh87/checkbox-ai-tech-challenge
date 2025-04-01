@@ -24,7 +24,7 @@ export function useTasks() {
   const [allRecords, setAllRecords] = useState<Task[]>([]); // Stores accumulated tasks
   const scrollViewportRef = useRef<HTMLDivElement>(null);
 
-  const { data, isLoading, refetch } = useQuery<ListTasksResponse>({
+  const { data, isLoading, refetch, error, failureCount } = useQuery<ListTasksResponse>({
     queryKey: ['tasks', sortStatus, cursor],
     queryFn: async () => {
       const params: ListTasksParams = {
@@ -93,5 +93,8 @@ export function useTasks() {
     setSortStatus,
     loadMoreRecords,
     scrollViewportRef,
+    error,
+    failureCount,
+    refetch,
   };
 }

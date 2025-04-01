@@ -16,17 +16,22 @@ export function TasksPage() {
     loadMoreRecords,
     scrollViewportRef,
     hasMore,
+    error,
+    failureCount,
   } = useTasks();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   return (
     <div data-testid="tasks-page">
-      <h1>Task Management</h1>
+      <h1>Task Management App</h1>
 
-      <Button onClick={() => setIsCreateModalOpen(true)} mb="md" data-testid="create-task-button">
-        Create New Task
-      </Button>
-
+      {failureCount && failureCount >= 3 ? (
+        <></>
+      ) : (
+        <Button onClick={() => setIsCreateModalOpen(true)} mb="md" data-testid="create-task-button">
+          Create New Task
+        </Button>
+      )}
       <CreateTaskModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
@@ -43,6 +48,11 @@ export function TasksPage() {
         onLoadMore={loadMoreRecords}
         scrollViewportRef={scrollViewportRef}
         hasMore={hasMore}
+        error={error}
+        failureCount={failureCount}
+        onRetry={() => {
+          window.location.reload();
+        }}
       />
     </div>
   );

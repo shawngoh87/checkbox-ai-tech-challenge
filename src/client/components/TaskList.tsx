@@ -1,5 +1,5 @@
 import { Task, TaskStatus } from '../types/task';
-import { Text, Badge, Paper, Group, Select } from '@mantine/core';
+import { Text, Badge, Paper, Group, Select, Button } from '@mantine/core';
 import { DataTable } from 'mantine-datatable';
 import { format } from 'date-fns';
 import { useState } from 'react';
@@ -15,6 +15,9 @@ interface TaskListProps {
   onSortStatusChange: (status: { columnAccessor: string; direction: 'asc' | 'desc' }) => void;
   onLoadMore: () => void;
   scrollViewportRef: React.RefObject<HTMLDivElement>;
+  error?: unknown;
+  failureCount?: number;
+  onRetry?: () => void;
 }
 
 const getStatusColor = (status: TaskStatus) => {
@@ -45,6 +48,8 @@ export function TaskList({
   onSortStatusChange,
   onLoadMore,
   scrollViewportRef,
+  failureCount,
+  onRetry,
 }: TaskListProps) {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -59,6 +64,19 @@ export function TaskList({
     setSelectedTask(record);
     setIsEditModalOpen(true);
   };
+
+  if (failureCount && failureCount >= 3) {
+    return (
+      <Paper p="xl" withBorder>
+        <Group justify="center">
+          <Text>Something went wrong</Text>
+          <Button onClick={onRetry} variant="light" color="blue">
+            Refresh
+          </Button>
+        </Group>
+      </Paper>
+    );
+  }
 
   return (
     <div data-testid="task-list">

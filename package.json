@@ -20,7 +20,7 @@
     "docker:test:up": "docker compose -f docker-compose.test.yaml up -d --build",
     "docker:test:down": "docker compose -f docker-compose.test.yaml down -v",
     "docker:dev:up": "docker compose -f docker-compose.dev.yaml up -d --build",
-    "docker:dev:down": "docker compose -f docker-compose.dev.yaml down -v"
+    "docker:dev:down": "docker compose -f docker-compose.dev.yaml down"
   },
   "dependencies": {
     "@mantine/core": "^7.17.2",
