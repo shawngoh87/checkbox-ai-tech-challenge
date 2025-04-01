@@ -21,8 +21,10 @@ cp .env.example .env
 
 ```bash
 npm run docker:dev:up
+npm run migrate:up
+npm run seed
 npm run test:watch
-npm run dev  # Both client/server are served together
+npm run dev         # Both client/server are served together
 ```
 
 ### Testing
@@ -32,6 +34,22 @@ npm run test
 ```
 
 ## Design decisions
+
+### Tech stack
+
+Frontend:
+- Vite
+- React.js
+- react-query for data fetching
+- Mantine for styling
+
+Backend:
+- ViteExpress
+- Express.js
+- Inversify.js for dependency injection
+- Kysely for database queries
+- Pino for logging
+- Zod for schema validation
 
 ### Infinite scrolling by default
 

@@ -4,6 +4,7 @@ import { Task } from '../../../domain/task/task.model.js';
 import { inject, injectable } from 'inversify';
 import { getDatabaseServiceIdentifier } from '../../../constants.js';
 import { z } from 'zod';
+import logger from '../../../utils/logger.js';
 
 export type TaskRepositoryFindAllOptions = {
   sort?: 'created_at:asc' | 'created_at:desc' | 'due_at:asc' | 'due_at:desc';
@@ -61,8 +62,10 @@ export class TaskRepository {
         return dueAtResult.data;
       }
 
+      logger.error(`Invalid cursor format: ${cursor}`);
       throw new TaskRepository.InvalidCursorError();
     } catch {
+      logger.error(`Invalid cursor format: ${cursor}`);
       throw new TaskRepository.InvalidCursorError();
     }
   }
@@ -120,6 +123,7 @@ export class TaskRepository {
             ]),
           );
       } else {
+        logger.error(options);
         throw new TaskRepository.DatabaseError('Unable to build query with the provided cursor');
       }
     }

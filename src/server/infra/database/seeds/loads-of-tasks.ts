@@ -3,13 +3,13 @@ import { v4 as uuidv4 } from 'uuid';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function seed(db: Kysely<any>): Promise<void> {
-  const tasks = Array.from({ length: 20000 }, (_, i) => ({
+  const tasks = Array.from({ length: 100000 }, (_, i) => ({
     id: uuidv4(),
     name: `Task ${i + 1}`,
     description: `Description for task ${i + 1}`,
-    due_at: new Date(Date.now() + Math.floor(Math.random() * 180) * 24 * 60 * 60 * 1000), // Random due date within next 180 days
+    due_at: new Date(Date.now() + Math.floor(Math.random() * 1800) * 24 * 60 * 60 * 1000), // Random due date within next 1800 days
     version: 0,
-    created_at: new Date(Date.now() - Math.floor(Math.random() * 180) * 24 * 60 * 60 * 1000), // Random creation date within last 180 days
+    created_at: new Date(Date.now() - Math.floor(Math.random() * 1800) * 24 * 60 * 60 * 1000), // Random creation date within last 1800 days
   }));
 
   const batchSize = 1000;

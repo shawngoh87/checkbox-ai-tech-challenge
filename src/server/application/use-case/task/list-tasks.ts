@@ -1,5 +1,6 @@
 import { Task } from '../../../domain/task/task.model.js';
 import { TaskRepository } from '../../../infra/repository/task/task.repository.js';
+import logger from '../../../utils/logger.js';
 import { UnknownError } from '../../error.js';
 import { inject, injectable } from 'inversify';
 
@@ -19,7 +20,8 @@ export class ListTasksUseCase {
     try {
       const { tasks, nextCursor } = await this.taskRepository.findAll(params);
       return { tasks, nextCursor };
-    } catch {
+    } catch (error) {
+      logger.error(error);
       throw new ListTasksUseCase.UnknownError('Failed to retrieve tasks');
     }
   }

@@ -2,6 +2,7 @@ import { Task } from '../../../domain/task/task.model.js';
 import { TaskRepository } from '../../../infra/repository/task/task.repository.js';
 import { UnknownError } from '../../error.js';
 import { inject, injectable } from 'inversify';
+import logger from '../../../utils/logger.js';
 
 export type UpdateTaskParams = {
   id: string;
@@ -34,7 +35,8 @@ export class UpdateTaskUseCase {
       });
 
       return result;
-    } catch {
+    } catch (error) {
+      logger.error(error);
       throw new UpdateTaskUseCase.UnknownError('Failed to update task');
     }
   }
